@@ -565,9 +565,6 @@ unsigned int kgsl_pwrctrl_adjust_pwrlevel(struct kgsl_device *device,
 	/* If a pwr constraint is expired, remove it */
 	if ((pwr->constraint.type != KGSL_CONSTRAINT_NONE) &&
 		(time_after(jiffies, pwr->constraint.expires))) {
-		/* Trace the constraint being un-set by the driver */
-		trace_kgsl_constraint(device, pwr->constraint.type,
-						old_level, 0);
 		/*Invalidate the constraint set */
 		pwr->constraint.expires = 0;
 		pwr->constraint.type = KGSL_CONSTRAINT_NONE;
@@ -650,11 +647,6 @@ void kgsl_pwrctrl_pwrlevel_change(struct kgsl_device *device,
 	kgsl_pwrctrl_pwrlevel_change_settings(device, 0);
 	kgsl_clk_set_rate(device, pwr->active_pwrlevel);
 	_isense_clk_set_rate(pwr, pwr->active_pwrlevel);
-
-	trace_kgsl_pwrlevel(device,
-			pwr->active_pwrlevel, pwrlevel->gpu_freq,
-			pwr->previous_pwrlevel,
-			pwr->pwrlevels[old_level].gpu_freq);
 
 	/*
 	 * Some targets do not support the bandwidth requirement of
