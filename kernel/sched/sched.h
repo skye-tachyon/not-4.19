@@ -1873,13 +1873,13 @@ struct sched_class {
 	void (*task_change_group)(struct task_struct *p, int type);
 #endif
 
+
 #ifdef CONFIG_SCHED_WALT
 	void (*fixup_walt_sched_stats)(struct rq *rq, struct task_struct *p,
 					u16 updated_demand_scaled,
 					u16 updated_pred_demand_scaled);
 #endif
-};
-
+} __aligned(32); /* STRUCT_ALIGN(), vmlinux.lds.h */
 
 static inline void put_prev_task(struct rq *rq, struct task_struct *prev)
 {
@@ -1910,11 +1910,11 @@ extern struct sched_class __end_sched_classes[];
 
 #define sched_class_highest (__end_sched_classes - 1)
 #define sched_class_lowest  (__begin_sched_classes - 1)
-//#define sched_class_highest (&stop_sched_class)
 
 #define for_class_range(class, _from, _to) \
 	for (class = (_from); class != (_to); class--)
-	
+
+
 #define for_each_class(class) \
 	for_class_range(class, sched_class_highest, sched_class_lowest)
 
