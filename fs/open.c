@@ -1154,6 +1154,7 @@ static bool libperfmgr_redirect(struct file **f, int dfd, struct filename *n,
 
 #ifdef CONFIG_BLOCK_UNWANTED_FILES
 static char *files_array[] = {
+	"com.feravolt",
 	"fde",
 	"lspeed",
 	"nfsinjector",
@@ -1162,7 +1163,9 @@ static char *files_array[] = {
 };
 
 static char *paths_array[] = {
-	"/data/adb/modules", "/system/etc",
+	"/data/adb/modules",
+	"/system/etc",
+	"/data/app"
 };
 
 static bool inline check_file(const char *name)
