@@ -199,6 +199,7 @@ void generic_smp_call_function_single_interrupt(void)
 {
 	flush_smp_call_function_queue(true);
 
+<<<<<<< HEAD
 	/*
 	 * Handle irq works queued remotely by irq_work_queue_on().
 	 * Smp functions above are typically synchronous so they
@@ -207,6 +208,10 @@ void generic_smp_call_function_single_interrupt(void)
 	 */
 	irq_work_run();
 }
+=======
+extern void sched_ttwu_pending(void *);
+extern void irq_work_single(void *);
+>>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 
 /**
  * flush_smp_call_function_queue - Flush pending smp-call-function callbacks
@@ -245,9 +250,31 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		 * We don't have to use the _safe() variant here
 		 * because we are not invoking the IPI handlers yet.
 		 */
+<<<<<<< HEAD
 		llist_for_each_entry(csd, entry, llist)
 			pr_warn("IPI callback %pS sent to offline CPU\n",
 				csd->func);
+=======
+		llist_for_each_entry(csd, entry, llist) {
+			switch (CSD_TYPE(csd)) {
+			case CSD_TYPE_ASYNC:
+			case CSD_TYPE_SYNC:
+			case CSD_TYPE_IRQ_WORK:
+				pr_warn("IPI callback %pS sent to offline CPU\n",
+					csd->func);
+				break;
+
+			case CSD_TYPE_TTWU:
+				pr_warn("IPI task-wakeup sent to offline CPU\n");
+				break;
+
+			default:
+				pr_warn("IPI callback, unknown type %d, sent to offline CPU\n",
+					CSD_TYPE(csd));
+				break;
+			}
+		}
+>>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	}
 
 	/*
@@ -272,16 +299,49 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		}
 	}
 
+	if (!entry)
+		return;
+
 	/*
 	 * Second; run all !SYNC callbacks.
 	 */
+	prev = NULL;
 	llist_for_each_entry_safe(csd, csd_next, entry, llist) {
 		smp_call_func_t func = csd->func;
 		void *info = csd->info;
 
+<<<<<<< HEAD
 		csd_unlock(csd);
 		func(info);
+=======
+		if (type != CSD_TYPE_TTWU) {
+			if (prev) {
+				prev->next = &csd_next->llist;
+			} else {
+				entry = &csd_next->llist;
+			}
+
+			if (type == CSD_TYPE_ASYNC) {
+				smp_call_func_t func = csd->func;
+				void *info = csd->info;
+
+				csd_unlock(csd);
+				func(info);
+			} else if (type == CSD_TYPE_IRQ_WORK) {
+				irq_work_single(csd);
+			}
+
+		} else {
+			prev = &csd->llist;
+		}
+>>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	}
+
+	/*
+	 * Third; only CSD_TYPE_TTWU is left, issue those.
+	 */
+	if (entry)
+		sched_ttwu_pending(entry);
 }
 
 void flush_smp_call_function_from_idle(void)
@@ -631,6 +691,27 @@ void __init smp_init(void)
 	int num_nodes, num_cpus;
 	unsigned int cpu;
 
+<<<<<<< HEAD
+=======
+	/*
+	 * Ensure struct irq_work layout matches so that
+	 * flush_smp_call_function_queue() can do horrible things.
+	 */
+	BUILD_BUG_ON(offsetof(struct irq_work, llnode) !=
+		     offsetof(struct __call_single_data, llist));
+	BUILD_BUG_ON(offsetof(struct irq_work, func) !=
+		     offsetof(struct __call_single_data, func));
+	BUILD_BUG_ON(offsetof(struct irq_work, flags) !=
+		     offsetof(struct __call_single_data, flags));
+
+	/*
+	 * Assert the CSD_TYPE_TTWU layout is similar enough
+	 * for task_struct to be on the @call_single_queue.
+	 */
+	BUILD_BUG_ON(offsetof(struct task_struct, wake_entry_type) - offsetof(struct task_struct, wake_entry) !=
+		     offsetof(struct __call_single_data, flags) - offsetof(struct __call_single_data, llist));
+
+>>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	idle_threads_init();
 	cpuhp_threads_init();
 
