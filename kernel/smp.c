@@ -28,6 +28,10 @@ enum {
 	CSD_FLAG_SYNCHRONOUS	= 0x02,
 };
 
+#include "sched/smp.h"
+
+#define CSD_TYPE(_csd)	((_csd)->flags & CSD_FLAG_TYPE_MASK)
+
 struct call_function_data {
 	call_single_data_t	__percpu *csd;
 	cpumask_var_t		cpumask;
@@ -139,7 +143,22 @@ static __always_inline void csd_unlock(struct __call_single_data *csd)
 
 static DEFINE_PER_CPU_SHARED_ALIGNED(call_single_data_t, csd_data);
 
-extern void send_call_function_single_ipi(int cpu);
+void __smp_call_single_queue(int cpu, struct llist_node *node)
+{
+	/*
+	 * The list addition should be visible before sending the IPI
+	 * handler locks the list to pull the entry off it because of
+	 * normal cache coherency rules implied by spinlocks.
+	 *
+	 * If IPIs can go out of order to the cache coherency protocol
+	 * in an architecture, sufficient synchronisation should be added
+	 * to arch code to make it appear to obey cache coherency WRT
+	 * locking and barrier primitives. Generic code isn't really
+	 * equipped to do the right thing...
+	 */
+	if (llist_add(node, &per_cpu(call_single_queue, cpu)))
+		send_call_function_single_ipi(cpu);
+}
 
 /*
  * Insert a previously allocated call_single_data_t element
@@ -199,19 +218,8 @@ void generic_smp_call_function_single_interrupt(void)
 {
 	flush_smp_call_function_queue(true);
 
-<<<<<<< HEAD
-	/*
-	 * Handle irq works queued remotely by irq_work_queue_on().
-	 * Smp functions above are typically synchronous so they
-	 * better run first since some other CPUs may be busy waiting
-	 * for them.
-	 */
-	irq_work_run();
 }
-=======
-extern void sched_ttwu_pending(void *);
 extern void irq_work_single(void *);
->>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 
 /**
  * flush_smp_call_function_queue - Flush pending smp-call-function callbacks
@@ -250,11 +258,6 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		 * We don't have to use the _safe() variant here
 		 * because we are not invoking the IPI handlers yet.
 		 */
-<<<<<<< HEAD
-		llist_for_each_entry(csd, entry, llist)
-			pr_warn("IPI callback %pS sent to offline CPU\n",
-				csd->func);
-=======
 		llist_for_each_entry(csd, entry, llist) {
 			switch (CSD_TYPE(csd)) {
 			case CSD_TYPE_ASYNC:
@@ -274,7 +277,6 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 				break;
 			}
 		}
->>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	}
 
 	/*
@@ -310,10 +312,6 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		smp_call_func_t func = csd->func;
 		void *info = csd->info;
 
-<<<<<<< HEAD
-		csd_unlock(csd);
-		func(info);
-=======
 		if (type != CSD_TYPE_TTWU) {
 			if (prev) {
 				prev->next = &csd_next->llist;
@@ -334,7 +332,6 @@ static void flush_smp_call_function_queue(bool warn_cpu_offline)
 		} else {
 			prev = &csd->llist;
 		}
->>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	}
 
 	/*
@@ -691,8 +688,6 @@ void __init smp_init(void)
 	int num_nodes, num_cpus;
 	unsigned int cpu;
 
-<<<<<<< HEAD
-=======
 	/*
 	 * Ensure struct irq_work layout matches so that
 	 * flush_smp_call_function_queue() can do horrible things.
@@ -711,7 +706,6 @@ void __init smp_init(void)
 	BUILD_BUG_ON(offsetof(struct task_struct, wake_entry_type) - offsetof(struct task_struct, wake_entry) !=
 		     offsetof(struct __call_single_data, flags) - offsetof(struct __call_single_data, llist));
 
->>>>>>> ed96504c1ffb (sched: Replace rq::wake_list)
 	idle_threads_init();
 	cpuhp_threads_init();
 
