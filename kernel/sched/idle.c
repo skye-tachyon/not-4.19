@@ -441,11 +441,6 @@ prio_changed_idle(struct rq *rq, struct task_struct *p, int oldprio)
 	BUG();
 }
 
-static unsigned int get_rr_interval_idle(struct rq *rq, struct task_struct *task)
-{
-	return 0;
-}
-
 static void update_curr_idle(struct rq *rq)
 {
 }
@@ -472,8 +467,6 @@ const struct sched_class idle_sched_class = {
 
 	.set_curr_task          = set_curr_task_idle,
 	.task_tick		= task_tick_idle,
-
-	.get_rr_interval	= get_rr_interval_idle,
 
 	.prio_changed		= prio_changed_idle,
 	.switched_to		= switched_to_idle,
