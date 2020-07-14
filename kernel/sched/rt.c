@@ -1449,7 +1449,7 @@ static void dequeue_rt_entity(struct sched_rt_entity *rt_se, unsigned int flags)
 	enqueue_top_rt_rq(&rq->rt);
 }
 
-#ifdef CONFIG_SMP
+#if defined CONFIG_SMP || defined CONFIG_RT_GROUP_SCHED
 static inline bool should_honor_rt_sync(struct rq *rq, struct task_struct *p,
 					bool sync)
 {
@@ -1477,6 +1477,7 @@ static void
 enqueue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 {
 	struct sched_rt_entity *rt_se = &p->rt;
+	bool sync = !!(flags & ENQUEUE_WAKEUP_SYNC);
 
 	schedtune_enqueue_task(p, cpu_of(rq));
 
@@ -1486,7 +1487,8 @@ enqueue_task_rt(struct rq *rq, struct task_struct *p, int flags)
 	enqueue_rt_entity(rt_se, flags);
 	walt_inc_cumulative_runnable_avg(rq, p);
 
-	if (!task_current(rq, p) && p->nr_cpus_allowed > 1)
+	if (!task_current(rq, p) && p->nr_cpus_allowed > 1 &&
+	    !should_honor_rt_sync(rq, p, sync))
 		enqueue_pushable_task(rq, p);
 }
 
@@ -1595,7 +1597,6 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 	struct rq *rq;
 	struct rq *this_cpu_rq;
 	bool sync = !!(flags & WF_SYNC);
-	bool may_not_preempt;
 	bool test;
 	int this_cpu;
 
@@ -1646,7 +1647,6 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 	 * requirement of the task - which is only important on heterogeneous
 	 * systems like big.LITTLE.
 	 */
-	may_not_preempt = task_may_not_preempt(curr, cpu);
 	test = static_branch_unlikely(&sched_energy_present) ||
 	       (curr && unlikely(rt_task(curr)) &&
 	       (curr->nr_cpus_allowed < 2 || curr->prio <= p->prio));
@@ -1660,7 +1660,7 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 		goto out_unlock;
 	}
 
-	if (may_not_preempt || test || !rt_task_fits_capacity(p, cpu)) {
+	if (test || !rt_task_fits_cpu(p, cpu)) {
 		int target = find_lowest_rq(p);
 
 		/*
@@ -1688,8 +1688,7 @@ select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
 		 * destination CPU is not running a lower priority task.
 		 */
 		if (target != -1 &&
-		    (may_not_preempt ||
-		     p->prio < cpu_rq(target)->rt.highest_prio.curr))
+		    (p->prio < cpu_rq(target)->rt.highest_prio.curr))
 			cpu = target;
 	}
 
