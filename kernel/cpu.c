@@ -1038,7 +1038,7 @@ static int __ref _cpu_down(unsigned int cpu, int tasks_frozen,
 	int prev_state, ret = 0;
 	u64 start_time = 0;
 
-	if (num_online_cpus() == 1)
+	if (num_active_cpus() == 1)
 		return -EBUSY;
 
 	if (!cpu_present(cpu))
