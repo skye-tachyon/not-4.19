@@ -118,7 +118,7 @@
  * the SHA256 / AES 256 over other ciphers. Thus, the favored
  * DRBGs are the latest entries in this array.
  */
-static const struct drbg_core drbg_cores[] = {
+const struct drbg_core drbg_cores[] = {
 #ifdef CONFIG_CRYPTO_DRBG_CTR
 	{
 		.flags = DRBG_CTR | DRBG_STRENGTH128,
@@ -211,6 +211,7 @@ static const struct drbg_core drbg_cores[] = {
 	},
 #endif /* CONFIG_CRYPTO_DRBG_HMAC */
 };
+EXPORT_SYMBOL(drbg_cores);
 
 static int drbg_uninstantiate(struct drbg_state *drbg);
 
@@ -226,7 +227,7 @@ static int drbg_uninstantiate(struct drbg_state *drbg);
  * Return: normalized strength in *bytes* value or 32 as default
  *	   to counter programming errors
  */
-static inline unsigned short drbg_sec_strength(drbg_flag_t flags)
+unsigned short drbg_sec_strength(drbg_flag_t flags)
 {
 	switch (flags & DRBG_STRENGTH_MASK) {
 	case DRBG_STRENGTH128:
@@ -239,6 +240,7 @@ static inline unsigned short drbg_sec_strength(drbg_flag_t flags)
 		return 32;
 	}
 }
+EXPORT_SYMBOL(drbg_sec_strength);
 
 /*
  * FIPS 140-2 continuous self test for the noise source
@@ -1362,7 +1364,7 @@ out:
 }
 
 /* Free all substructures in a DRBG state without the DRBG state structure */
-static inline void drbg_dealloc_state(struct drbg_state *drbg)
+void drbg_dealloc_state(struct drbg_state *drbg)
 {
 	if (!drbg)
 		return;
@@ -1383,12 +1385,13 @@ static inline void drbg_dealloc_state(struct drbg_state *drbg)
 		drbg->fips_primed = false;
 	}
 }
+EXPORT_SYMBOL(drbg_dealloc_state);
 
 /*
  * Allocate all sub-structures for a DRBG state.
  * The DRBG state structure must already be allocated.
  */
-static inline int drbg_alloc_state(struct drbg_state *drbg)
+int drbg_alloc_state(struct drbg_state *drbg)
 {
 	int ret = -ENOMEM;
 	unsigned int sb_size = 0;
@@ -1467,6 +1470,7 @@ err:
 	drbg_dealloc_state(drbg);
 	return ret;
 }
+EXPORT_SYMBOL(drbg_alloc_state);
 
 /*************************************************************************
  * DRBG interface functions
@@ -2005,8 +2009,7 @@ out:
  *
  * return: flags
  */
-static inline void drbg_convert_tfm_core(const char *cra_driver_name,
-					 int *coreref, bool *pr)
+void drbg_convert_tfm_core(const char *cra_driver_name, int *coreref, bool *pr)
 {
 	int i = 0;
 	size_t start = 0;
@@ -2033,6 +2036,7 @@ static inline void drbg_convert_tfm_core(const char *cra_driver_name,
 		}
 	}
 }
+EXPORT_SYMBOL(drbg_convert_tfm_core);
 
 static int drbg_kcapi_init(struct crypto_tfm *tfm)
 {
