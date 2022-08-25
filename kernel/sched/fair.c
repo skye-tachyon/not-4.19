@@ -8723,8 +8723,6 @@ redo:
 		if (env->idle != CPU_NOT_IDLE && env->src_rq->nr_running <= 1)
 			break;
 
-		p = list_last_entry(tasks, struct task_struct, se.group_node);
-
 		env->loop++;
 		/* We've more or less seen every task there is, call it quits */
 		if (env->loop > env->loop_max)
@@ -8740,6 +8738,8 @@ redo:
 			env->flags |= LBF_NEED_BREAK;
 			break;
 		}
+
+		p = list_last_entry(tasks, struct task_struct, se.group_node);
 
 		if (!can_migrate_task(p, env))
 			goto next;
