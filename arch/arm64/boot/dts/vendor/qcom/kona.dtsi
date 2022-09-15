@@ -341,7 +341,7 @@
 	};
 
 	chosen {
-		bootargs = "noirqdebug rcu_nocbs=0-7 kpti=off cgroup.memory=nokmem cgroup_disable=pressure";
+                bootargs = "rcupdate.rcu_normal_after_boot=1 quiet rcu_nocbs=0-7 rcu_nocb_poll cgroup.memory=nokmem kpti=0 noirqdebug nodebugmon nosoftlockup mce=ignore_ce cgroup_disable=pressure";
 	};
 
 	firmware: firmware {
