@@ -7,6 +7,8 @@
 #include <linux/vmalloc.h>
 #include <linux/proc_fs.h>
 #include <linux/power_supply.h>
+#include <linux/pm_qos.h>
+#include <linux/i2c-qcom-geni.h>
 
 #define TSP_TYPE_BUILTIN_FW		0
 #define TSP_TYPE_EXTERNAL_FW		1
@@ -1024,6 +1026,9 @@ struct fts_ts_info {
 	int (*fts_read_from_sponge)(struct fts_ts_info *info, u16 offset, u8 *data, int length);
 	int (*fts_write_to_sponge)(struct fts_ts_info *info, u16 offset, u8 *data, int length);
 #endif
+
+	struct pm_qos_request pm_i2c_req;
+	struct pm_qos_request pm_touch_req;
 };
 
 int fts_fw_update_on_probe(struct fts_ts_info *info);
