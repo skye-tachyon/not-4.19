@@ -2305,10 +2305,8 @@ static irqreturn_t fts_interrupt_handler(int irq, void *handle)
 		/* run lpm interrupt handler */
 	}
 
-	/* prevent CPU from entering deep sleep */
 	pm_qos_update_request(&info->pm_touch_req, 100);
 	pm_qos_update_request(&info->pm_i2c_req, 100);
-	pm_wakeup_event(&info->client->dev, MSEC_PER_SEC);
 
 	mutex_lock(&info->eventlock);
 
