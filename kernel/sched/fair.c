@@ -4288,8 +4288,7 @@ static inline bool task_fits_capacity(struct task_struct *p,
 	unsigned int margin;
 
 	/*
-	 * Derive upmigration/downmigrate margin wrt the src/dest
-	 * CPU.
+	 * Derive upmigration/downmigrate margin wrt the src/dest CPU.
 	 */
 	if (capacity_orig_of(task_cpu(p)) > capacity_orig_of(cpu))
 		margin = sched_capacity_margin_down[cpu];
@@ -4310,9 +4309,9 @@ static inline bool task_fits_max(struct task_struct *p, int cpu)
 
 	if (is_min_capacity_cpu(cpu)) {
 		if (task_boost_policy(p) == SCHED_BOOST_ON_BIG ||
-			task_boost > 0 ||
-			schedtune_task_boost(p) > 0 ||
-			walt_should_kick_upmigrate(p, cpu))
+				task_boost > 0 ||
+				uclamp_boosted(p) ||
+				walt_should_kick_upmigrate(p, cpu))
 			return false;
 	} else { /* mid cap cpu */
 		if (task_boost > TASK_BOOST_ON_MID)
