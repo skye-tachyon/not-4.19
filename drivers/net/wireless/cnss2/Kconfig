@@ -87,7 +87,7 @@ config CNSS_QCA6490
 
 config SEC_CNSS2
 	bool "Enable SEC specific changes"
-	default n
+	default y
 	depends on CNSS2
 	depends on CNSS_QCA6390 || CNSS_QCA6490
     help
