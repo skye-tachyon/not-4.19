@@ -255,17 +255,6 @@ static unsigned int _hwcg_show(struct adreno_device *adreno_dev)
 	return test_bit(ADRENO_HWCG_CTRL, &adreno_dev->pwrctrl_flag);
 }
 
-static int _throttling_store(struct adreno_device *adreno_dev,
-	unsigned int val)
-{
-	return _pwrctrl_store(adreno_dev, val, ADRENO_THROTTLING_CTRL);
-}
-
-static unsigned int _throttling_show(struct adreno_device *adreno_dev)
-{
-	return test_bit(ADRENO_THROTTLING_CTRL, &adreno_dev->pwrctrl_flag);
-}
-
 static int _sptp_pc_store(struct adreno_device *adreno_dev,
 		unsigned int val)
 {
@@ -438,7 +427,6 @@ static ADRENO_SYSFS_BOOL(sptp_pc);
 static ADRENO_SYSFS_BOOL(lm);
 static ADRENO_SYSFS_BOOL(preemption);
 static ADRENO_SYSFS_BOOL(hwcg);
-static ADRENO_SYSFS_BOOL(throttling);
 static ADRENO_SYSFS_BOOL(ifpc);
 static ADRENO_SYSFS_RO_U32(ifpc_count);
 static ADRENO_SYSFS_BOOL(acd);
@@ -456,7 +444,6 @@ static const struct attribute *_attr_list[] = {
 	&adreno_attr_lm.attr.attr,
 	&adreno_attr_preemption.attr.attr,
 	&adreno_attr_hwcg.attr.attr,
-	&adreno_attr_throttling.attr.attr,
 	&adreno_attr_gpu_llc_slice_enable.attr.attr,
 	&adreno_attr_gpuhtw_llc_slice_enable.attr.attr,
 	&adreno_attr_preempt_level.attr.attr,
