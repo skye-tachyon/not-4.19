@@ -17,6 +17,13 @@ update_irq_load_avg(struct rq *rq, u64 running)
 }
 #endif
 
+#define PELT_MIN_DIVIDER	(LOAD_AVG_MAX - 1024)
+
+static inline u32 get_pelt_divider(struct sched_avg *avg)
+{
+	return PELT_MIN_DIVIDER + avg->period_contrib;
+}
+
 /*
  * When a task is dequeued, its estimated utilization should not be update if
  * its util_avg has not been updated at least once.
@@ -120,6 +127,17 @@ static inline u64 rq_clock_pelt(struct rq *rq)
 	assert_clock_updated(rq);
 
 	return rq->clock_pelt - rq->lost_idle_time;
+}
+
+/* The rq is idle, we can sync to clock_task */
+static inline void _update_idle_rq_clock_pelt(struct rq *rq)
+{
+	rq->clock_pelt  = rq_clock_task(rq);
+
+	u64_u32_store(rq->clock_idle, rq_clock(rq));
+	/* Paired with smp_rmb in migrate_se_pelt_lag() */
+	smp_wmb();
+	u64_u32_store(rq->clock_pelt_idle, rq_clock_pelt(rq));
 }
 
 #ifdef CONFIG_CFS_BANDWIDTH
