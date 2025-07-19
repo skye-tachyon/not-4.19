@@ -108,6 +108,8 @@ void dead_special_task(void)
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
+#define SYSTEMUIG_BIN "/system_ext/priv-app/SystemUIGoogle/SystemUIGoogle.apk"
+#define SYSTEMUI_BIN "/system_ext/priv-app/SystemUI/SystemUI.apk"
 #define ZYGOTE32_BIN "/system/bin/app_process32"
 #define ZYGOTE64_BIN "/system/bin/app_process64"
 static struct signal_struct *zygote32_sig;
@@ -2024,6 +2026,17 @@ static int __do_execve_file(int fd, struct filename *filename,
 			zygote32_sig = current->signal;
 		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
 			zygote64_sig = current->signal;
+		else if (unlikely(!strncmp(filename->name,
+					   SYSTEMUI_BIN,
+					   strlen(SYSTEMUI_BIN)))) {
+			current->flags |= PF_PERF_CRITICAL;
+			set_cpus_allowed_ptr(current, cpu_hp_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					   SYSTEMUIG_BIN,
+					   strlen(SYSTEMUIG_BIN)))) {
+			current->flags |= PF_PERF_CRITICAL;
+			set_cpus_allowed_ptr(current, cpu_hp_mask);
+		} 
 	}
 
 	if (is_global_init(current->parent)) {
