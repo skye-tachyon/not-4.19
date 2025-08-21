@@ -18,6 +18,7 @@
 #include <linux/tfifo.h>
 #include <linux/kobject.h>
 #include <linux/sysfs.h>
+#include <linux/trace_events.h>
 
 /**
  *
@@ -138,6 +139,39 @@ struct rand_var {
 	unsigned int __span = __rv->ubound + __rv->lbound;		\
 	__span;								\
 })
+
+/*
+ * Tracepoint for logging frequency selection details when using FFSI.
+ * Captures CPU utilization, legacy and final freq, the list goes on.
+ */
+TRACE_EVENT(sugov_ffsi_freq,
+	    TP_PROTO(unsigned int cpu, unsigned long util, unsigned long max,
+		     int l1_rand, unsigned int legacy_freq, unsigned int freq),
+	    TP_ARGS(cpu, util, max, l1_rand, legacy_freq, freq),
+	    TP_STRUCT__entry(
+		    __field(	unsigned int,	cpu)
+		    __field(	unsigned long,	util)
+		    __field(	unsigned long,	max)
+		    __field(	int,		l1_rand)
+		    __field(	unsigned int,	legacy_freq)
+		    __field(	unsigned int,	freq)
+	    ),
+	    TP_fast_assign(
+		    __entry->cpu = cpu;
+		    __entry->util = util;
+		    __entry->max = max;
+		    __entry->l1_rand = l1_rand;
+		    __entry->legacy_freq = legacy_freq;
+		    __entry->freq = freq;
+	    ),
+	    TP_printk("cpu=%u util=%lu max=%lu l1_rand=%d legacy_freq=%u ffsi_freq=%u",
+		      __entry->cpu,
+		      __entry->util,
+		      __entry->max,
+		      __entry->l1_rand,
+		      __entry->legacy_freq,
+		      __entry->freq)
+);
 
 /**
  * TPDF(Temporal Probability Density Function) container class

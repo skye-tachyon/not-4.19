@@ -30,7 +30,6 @@ struct cpufreq_stats {
 static void cpufreq_stats_update(struct cpufreq_stats *stats)
 {
 	unsigned long long cur_time = get_jiffies_64();
-	unsigned long flags;
 
 	stats->time_in_state[stats->last_index] += cur_time - stats->last_time;
 	stats->last_time = cur_time;
@@ -56,6 +55,7 @@ static ssize_t show_total_trans(struct cpufreq_policy *policy, char *buf)
 static ssize_t show_time_in_state(struct cpufreq_policy *policy, char *buf)
 {
 	struct cpufreq_stats *stats = policy->stats;
+	unsigned long flags;
 	ssize_t len = 0;
 	int i;
 
@@ -224,6 +224,7 @@ void cpufreq_stats_record_transition(struct cpufreq_policy *policy,
 				     unsigned int new_freq)
 {
 	struct cpufreq_stats *stats = policy->stats;
+	unsigned long flags;
 	int old_index, new_index;
 
 	if (!stats) {
