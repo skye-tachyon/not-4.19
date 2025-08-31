@@ -275,7 +275,7 @@ static unsigned int get_next_freq(struct sugov_policy *sg_policy,
 		 */
 		freq = policy->cur + (policy->cur >> 2);
 
-	freq = map_util_freq(util, freq, max);
+	freq = map_util_freq(util, freq, max, policy->cpu);
 	
 #ifdef CONFIG_SCHED_FFSI_GLUE
 	legacy_freq = freq;
