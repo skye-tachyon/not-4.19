@@ -213,6 +213,14 @@ extern void set_sched_topology(struct sched_domain_topology_level *tl);
 # define SD_INIT_NAME(type)
 #endif
 
+#ifdef CONFIG_ENERGY_MODEL
+extern void rebuild_sched_domains_energy(void);
+#else
+static inline void rebuild_sched_domains_energy(void)
+{
+}
+#endif
+
 #else /* CONFIG_SMP */
 
 struct sched_domain_attr;

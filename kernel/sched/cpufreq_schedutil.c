@@ -1020,6 +1020,11 @@ static int sugov_init(struct cpufreq_policy *policy)
 		goto fail;
 
 out:
+	/*
+	 * Schedutil is the preferred governor for EAS, so rebuild sched domains
+	 * on governor changes to make sure the scheduler knows about them.
+	 */
+	em_rebuild_sched_domains();
 	mutex_unlock(&global_tunables_lock);
 	return 0;
 
@@ -1072,6 +1077,8 @@ static void sugov_exit(struct cpufreq_policy *policy)
 	sugov_kthread_stop(sg_policy);
 	sugov_policy_free(sg_policy);
 	cpufreq_disable_fast_switch(policy);
+        
+        em_rebuild_sched_domains();
 }
 
 static int sugov_start(struct cpufreq_policy *policy)
