@@ -1303,7 +1303,6 @@ static void __setscheduler_uclamp(struct task_struct *p,
 	 */
 	for_each_clamp_id(clamp_id) {
 		struct uclamp_se *uc_se = &p->uclamp_req[clamp_id];
-		unsigned int clamp_value = uclamp_none(clamp_id);
 
 		/* Keep using defined clamps across class changes */
 		if (uc_se->user_defined)
