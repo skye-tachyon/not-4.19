@@ -25,6 +25,8 @@
 #define CMD_ENABLE_SU 15
 #define CMD_GET_MANAGER_UID 16
 
+#define CMD_GET_FULL_VERSION 0xC0FFEE1A
+
 #define CMD_HOOK_MODE 0xC0DEAD1A
 
 #define EVENT_POST_FS_DATA 1
@@ -36,6 +38,16 @@
 // NGROUPS_MAX for Linux is 65535 generally, but we only supports 32 groups.
 #define KSU_MAX_GROUPS 32
 #define KSU_SELINUX_DOMAIN 64
+
+#define KSU_MAX_VERSION_NAME 255
+
+
+// SukiSU Ultra kernel su version full strings
+#ifndef KSU_VERSION_FULL 
+#define KSU_VERSION_FULL "v4.4.4-00PA1N00@unknown"
+#endif
+
+#define KSU_FULL_VERSION_STRING 255
 
 struct root_profile {
 	int32_t uid;
