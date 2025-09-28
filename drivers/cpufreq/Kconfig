@@ -240,19 +240,19 @@ if CPU_INPUT_BOOST
 
 config INPUT_BOOST_DURATION_MS
 	int "Input boost duration"
-	default "50"
+	default "100"
 	help
 	  Input boost duration in milliseconds.
 
 config WAKE_BOOST_DURATION_MS
 	int "Wake boost duration"
-	default "200"
+	default "500"
 	help
 	  Wake boost duration in milliseconds.
 
 config INPUT_BOOST_FREQ_LP
 	int "Low-power cluster boost freq"
-	default "1708800"
+	default "1344000"
 	help
 	  Input boost frequency for the low-power CPU cluster.
 
