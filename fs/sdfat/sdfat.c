@@ -4300,7 +4300,7 @@ static void sdfat_free_inode(struct inode *inode)
 	kmem_cache_free(sdfat_inode_cachep, SDFAT_I(inode));
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
 /* Use free_inode instead of destroy_inode */
 #define sdfat_destroy_inode	(NULL)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(3, 13, 0)
@@ -4710,7 +4710,7 @@ static int __sdfat_show_options(struct seq_file *m, struct super_block *sb)
 
 static const struct super_operations sdfat_sops = {
 	.alloc_inode   = sdfat_alloc_inode,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
 	.free_inode    = sdfat_free_inode,
 #else
 	.destroy_inode = sdfat_destroy_inode,
