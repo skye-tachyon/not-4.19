@@ -60,6 +60,7 @@ bool susfs_is_allow_su(void)
 	return ksu_is_allow_uid(current_uid().val);
 }
 
+bool susfs_is_boot_completed_triggered = false;
 extern u32 susfs_zygote_sid;
 extern bool susfs_is_mnt_devname_ksu(struct path *path);
 #ifdef CONFIG_KSU_SUSFS_ENABLE_LOG
@@ -479,6 +480,9 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 			if (!boot_complete_lock) {
 				boot_complete_lock = true;
 				pr_info("boot_complete triggered\n");
+#ifdef CONFIG_KSU_SUSFS_SUS_MOUNT
+				susfs_is_boot_completed_triggered = true;
+#endif
 			}
 			break;
 		}
