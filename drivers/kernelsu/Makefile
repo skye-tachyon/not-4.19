@@ -16,17 +16,18 @@ ccflags-y += -I$(objtree)/security/selinux -include $(srctree)/include/uapi/asm-
 
 obj-$(CONFIG_KSU) += kernelsu.o
 
-REPO_NAME := KrenlolSU-Next
+REPO_NAME := Uma-muSUme
 
-KSU_VERSION := 14327
-KSU_VERSION_API := 3.1.9
-KSU_VERSION_FULL := v$(KSU_VERSION_API)-$(REPO_NAME)-skye@pa1n
+KSU_VERSION := 14331
+KSU_VERSION_API := 3.2.0
+KSU_VERSION_FULL := v$(KSU_VERSION_API)-$(REPO_NAME)-skye@tachyon
 
-$(info -- KrenlolSU-Next version: $(KSU_VERSION))
-$(info -- KrenlolSU-Next FULL version: $(KSU_VERSION_FULL))
+$(info -- Uma-muSUme version: $(KSU_VERSION))
+$(info -- Uma-muSUme version: $(KSU_VERSION_FULL))
 
 ccflags-y += -DKSU_VERSION=$(KSU_VERSION)
 ccflags-y += -DKSU_VERSION_FULL=\"$(KSU_VERSION_FULL)\"
+ccflags-y += -DKSU_VERSION_TAG=\"$(KSU_VERSION_FULL)\"
 
 ifeq ($(shell grep -q " current_sid(void)" $(srctree)/security/selinux/include/objsec.h; echo $$?),0)
 ccflags-y += -DKSU_COMPAT_HAS_CURRENT_SID
