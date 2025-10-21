@@ -77,15 +77,9 @@ obj-$(CONFIG_MSM_QBT_HANDLER) += qbt_handler.o
 obj-$(CONFIG_QSEE_IPC_IRQ) += qsee_ipc_irq.o
 obj-$(CONFIG_QSEE_IPC_IRQ_BRIDGE) += qsee_ipc_irq_bridge.o
 obj-$(CONFIG_QPNP_PBS) += qpnp-pbs.o
-obj-$(CONFIG_QTI_SYSTEM_PM) += system_pm.o
 obj-$(CONFIG_MSM_REMOTEQDSS) += remoteqdss.o
 obj-$(CONFIG_MSM_EVENT_TIMER) += event_timer.o
 obj-$(CONFIG_MSM_IDLE_STATS)	+= lpm-stats.o
-ifdef CONFIG_QCOM_RPMH
-       obj-$(CONFIG_QTI_RPM_STATS_LOG) += rpmh_master_stat.o subsystem_sleep_debug.o
-else
-       obj-$(CONFIG_QTI_RPM_STATS_LOG) += rpm_master_stat.o
-endif
 obj-$(CONFIG_QCOM_DCC) += dcc.o
 obj-$(CONFIG_QTI_RPM_STATS_LOG) += rpm_stats.o
 obj-$(CONFIG_QCOM_MEM_OFFLINE) += mem-offline.o

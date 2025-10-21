@@ -749,9 +749,6 @@ config MSM_CDSP_LOADER
 	  for platforms that have one.
 	  Say M if you want to enable this module.
 
-config QTI_SYSTEM_PM
-	bool
-
 config QCOM_SMCINVOKE
 	bool "Secure QSEE Support"
 	help
@@ -772,7 +769,6 @@ config MSM_PM
 	depends on PM
 	select MSM_IDLE_STATS if DEBUG_FS
 	select CPU_IDLE_MULTIPLE_DRIVERS
-	select QTI_SYSTEM_PM if QCOM_RPMH
 	bool "Qualcomm Technologies, Inc. (QTI) Power Management Drivers"
 	help
 	  Platform specific power driver to manage cores and l2 low power
@@ -830,15 +826,6 @@ config QCOM_DCC
 	  This option enables driver for Data Capture and Compare engine. DCC
 	  driver provides interface to configure DCC block and read back
 	  captured data from DCC's internal SRAM.
-
-config QTI_RPM_STATS_LOG
-	bool "Qualcomm Technologies RPM Stats Driver"
-	depends on QCOM_RPMH || MSM_RPM_SMD
-	help
-	  This option enables a driver which reads RPM messages from a shared
-	  memory location. These messages provide statistical information about
-	  the low power modes that RPM enters. The drivers outputs the message
-	  via a sysfs node.
 
 config QTI_DDR_STATS_LOG
 	tristate "Qualcomm Technologies Inc (QTI) DDR Stats Driver"
