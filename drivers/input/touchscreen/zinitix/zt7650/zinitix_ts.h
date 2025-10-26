@@ -257,7 +257,7 @@
 
 #define VCMD_UPGRADE_PART_ERASE_START			0x01DA
 
-#if IS_ENABLED(CONFIG_TOUCHSCREEN_ZINITIX_ZT7650M)
+#if defined(CONFIG_TOUCHSCREEN_ZINITIX_ZT7650) || defined(CONFIG_TOUCHSCREEN_ZINITIX_ZT7650M)
 #define VCMD_UPGRADE_INIT_FLASH				0x20F0
 #define VCMD_UPGRADE_WRITE_FLASH			0x21F0
 #define VCMD_UPGRADE_READ_FLASH				0x22F0
@@ -1164,7 +1164,7 @@ void zt_set_grip_type(struct zt_ts_info *info, u8 set_type);
 #ifdef TCLM_CONCEPT
 int get_zt_tsp_nvm_data(struct zt_ts_info *info, u8 addr, u8 *values, u16 length);
 int set_zt_tsp_nvm_data(struct zt_ts_info *info, u8 addr, u8 *values, u16 length);
-int zt_tclm_data_read(struct device *dev, int address);
+int zt_tclm_data_read(struct i2c_client *client, int address);
 #endif
 
 //void location_detect(struct zt_ts_info *info, char *loc, int x, int y);

@@ -1765,10 +1765,12 @@ static bool upgrade_fw_full_download(struct zt_ts_info *info, const u8 *firmware
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_ZINITIX_ZT7650)
 	unsigned short int erase_info[2];
 #endif
+#if IS_ENABLED(CONFIG_TOUCHSCREEN_ZINITIX_ZT7650M)
 	// change erase/program time
 	u32	icNvmDelayRegister = 0x001E002C;
 	u32	icNvmDelayTime = 0x00004FC2;
 	u8 cData[8];
+#endif
 
 	nmemsz = info->fw_info_size + info->fw_core_size + info->fw_cust_size + info->fw_regi_size;
 	if (nmemsz % nrdsectorsize > 0)
@@ -2298,7 +2300,7 @@ static int fw_update_work(struct zt_ts_info *info, bool force_update)
 		}
 
 #ifdef TCLM_CONCEPT
-		ret = zt_tclm_data_read(&info->client->dev, SEC_TCLM_NVM_ALL_DATA);
+		ret = zt_tclm_data_read(info->client, SEC_TCLM_NVM_ALL_DATA);
 		if (ret < 0)
 			input_info(true, &info->client->dev, "%s: sec_tclm_get_nvm_all error\n", __func__);
 
@@ -2933,9 +2935,9 @@ out:
 	return IRQ_HANDLED;
 }
 
-static int  zt_ts_open(struct device *dev)
+static int zt_ts_open(struct input_dev *dev)
 {
-	struct zt_ts_info *info = dev_get_drvdata(dev);
+	struct zt_ts_info *info = misc_info;
 	int ret = 0;
 
 	if (info == NULL)
@@ -2948,7 +2950,7 @@ static int  zt_ts_open(struct device *dev)
 
 	input_info(true, &info->client->dev, "%s, %d \n", __func__, __LINE__);
 
-	atomic_set(&info->plat_data->enabled, 1);
+	info->plat_data->enabled = true;
 
 #if 0 //IS_ENABLED(CONFIG_TRUSTONIC_TRUSTED_UI)
 	sec_delay(100);
@@ -3026,18 +3028,18 @@ fail_late_resume:
 	return 0;
 }
 
-static int zt_ts_close(struct device *dev)
+static void zt_ts_close(struct input_dev *dev)
 {
-	struct zt_ts_info *info = dev_get_drvdata(dev);
+	struct zt_ts_info *info = misc_info;
 	int i;
 	u8 prev_work_state;
 
 	if (info == NULL)
-		return 0;
+		return;
 
 	if (!info->info_work_done) {
 		input_err(true, &info->client->dev, "%s not finished info work\n", __func__);
-		return 0;
+		return;
 	}
 
 	input_info(true, &info->client->dev,
@@ -3046,7 +3048,7 @@ static int zt_ts_close(struct device *dev)
 			info->aot_enable, info->singletap_enable, info->plat_data->prox_power_off,
 			info->plat_data->pocket_mode, info->plat_data->ed_enable);
 
-	atomic_set(&info->plat_data->enabled, 0);
+	info->plat_data->enabled = false;
 
 #if 0 //IS_ENABLED(CONFIG_TRUSTONIC_TRUSTED_UI)
 	sec_delay(100);
@@ -3131,7 +3133,7 @@ static int zt_ts_close(struct device *dev)
 					info->work_state);
 			mutex_unlock(&info->work_lock);
 			enable_irq(info->irq);
-			return 0;
+			return;
 		}
 		info->work_state = EALRY_SUSPEND;
 
@@ -3150,7 +3152,7 @@ static int zt_ts_close(struct device *dev)
 
 	input_info(true, &info->client->dev, "%s --\n", __func__);
 	mutex_unlock(&info->work_lock);
-	return 0;
+	return;
 }
 
 static int ts_set_touchmode(struct zt_ts_info *info, u16 value)
@@ -5588,9 +5590,9 @@ fail_ium_random_write:
 	return -1;
 }
 
-int zt_tclm_data_read(struct device *dev, int address)
+int zt_tclm_data_read(struct i2c_client *client, int address)
 {
-	struct zt_ts_info *info = dev_get_drvdata(dev);
+	struct zt_ts_info *info = i2c_get_clientdata(client);
 	int i, ret = 0;
 	u8 nbuff[ZT_TS_NVM_OFFSET_LENGTH];
 
@@ -5630,9 +5632,9 @@ int zt_tclm_data_read(struct device *dev, int address)
 	}
 }
 
-int zt_tclm_data_write(struct device *dev, int address)
+int zt_tclm_data_write(struct i2c_client *client, int address)
 {
-	struct zt_ts_info *info = dev_get_drvdata(dev);
+	struct zt_ts_info *info = i2c_get_clientdata(client);
 	int i, ret = 1;
 	u8 nbuff[ZT_TS_NVM_OFFSET_LENGTH];
 
@@ -6022,9 +6024,9 @@ static void clear_reference_data(void *device_data)
 			sec->cmd_result, (int)strnlen(sec->cmd_result, sizeof(sec->cmd_result)));
 }
 
-int zt_tclm_execute_force_calibration(struct device *dev, int cal_mode)
+int zt_tclm_execute_force_calibration(struct i2c_client *client, int cal_mode)
 {
-	struct zt_ts_info *info = dev_get_drvdata(dev);
+	struct zt_ts_info *info = i2c_get_clientdata(client);
 
 	if (ts_hw_calibration(info) == false)
 		return -1;
@@ -8247,12 +8249,20 @@ static int init_sec_factory(struct zt_ts_info *info)
 		goto err_alloc;
 	}
 
-	ret = sec_cmd_init(&info->sec, &info->client->dev, sec_cmds,
-			ARRAY_SIZE(sec_cmds), SEC_CLASS_DEVT_TSP, &touchscreen_attr_group);
+	ret = sec_cmd_init(&info->sec, sec_cmds,
+			ARRAY_SIZE(sec_cmds), SEC_CLASS_DEVT_TSP);
 	if (ret < 0) {
 		input_err(true, &info->client->dev,
 				"%s: Failed to sec_cmd_init\n", __func__);
 		goto err_init_cmd;
+	}
+
+	ret = sysfs_create_group(&info->sec.fac_dev->kobj,
+			&touchscreen_attr_group);
+	if (ret < 0) {
+		input_err(true, &info->client->dev,
+				"%s: FTS Failed to create sysfs attributes\n", __func__);
+		goto err_create_sysfs;
 	}
 
 	ret = sysfs_create_link(&info->sec.fac_dev->kobj,
@@ -8926,7 +8936,8 @@ static void zt_run_rawdata(struct zt_ts_info *info)
 }
 
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUMP_MODE)
-#include "../../../sec_input/sec_tsp_dumpkey.h"
+#include "../../../sec_input_v2/sec_tsp_dumpkey.h"
+extern struct tsp_dump_callbacks dump_callbacks;
 static struct delayed_work *p_ghost_check;
 
 static void zt_check_rawdata(struct work_struct *work)
@@ -9241,7 +9252,6 @@ static int zt_ts_probe(struct i2c_client *client,
 	info->client = client;
 	info->pdata = pdata;
 	info->plat_data = plat_data;
-	info->plat_data->dev = &info->client->dev;
 	info->plat_data->power = sec_input_power;
 
 	info->tsp_page_size = TSP_PAGE_SIZE;
@@ -9257,8 +9267,7 @@ static int zt_ts_probe(struct i2c_client *client,
 		goto error_null_data;
 
 	sec_tclm_initialize(info->tdata);
-	info->tdata->dev = &info->client->dev;
-//	info->tdata->client = info->client;
+	info->tdata->client = info->client;
 	info->tdata->tclm_read = zt_tclm_data_read;
 	info->tdata->tclm_write = zt_tclm_data_write;
 	info->tdata->tclm_execute_force_calibration = zt_tclm_execute_force_calibration;
@@ -9389,8 +9398,8 @@ static int zt_ts_probe(struct i2c_client *client,
 		}
 	}
 
-	info->plat_data->enable = zt_ts_open;
-	info->plat_data->disable = zt_ts_close;
+	info->plat_data->input_dev->open = zt_ts_open;
+	info->plat_data->input_dev->close = zt_ts_close;
 
 	if (init_touch(info) == false) {
 		ret = -EPERM;
@@ -9470,16 +9479,16 @@ static int zt_ts_probe(struct i2c_client *client,
 	schedule_delayed_work(&info->work_read_info, msecs_to_jiffies(5000));
 
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUMP_MODE)
-	sec_input_dumpkey_register(MULTI_DEV_NONE, dump_tsp_log, &info->client->dev);
+	dump_callbacks.inform_dump = dump_tsp_log;
 	INIT_DELAYED_WORK(&info->ghost_check, zt_check_rawdata);
 	p_ghost_check = &info->ghost_check;
 #endif
 #if IS_ENABLED(CONFIG_INPUT_SEC_SECURE_TOUCH)
 	if (info->pdata->ss_touch_num > 0)
-		sec_secure_touch_register(info, &info->client->dev, info->pdata->ss_touch_num, &info->input_dev->dev.kobj);
+		sec_secure_touch_register(info, info->pdata->ss_touch_num, &info->input_dev->dev.kobj);
 #endif
 
-	atomic_set(&info->plat_data->enabled, 1);
+	info->plat_data->enabled = true;
 
 	input_log_fix();
 	return 0;
@@ -9495,8 +9504,8 @@ err_misc_register:
 err_request_irq:
 error_gpio_irq:
 err_init_touch:
-	info->plat_data->enable = NULL;
-	info->plat_data->disable = NULL;
+	info->plat_data->input_dev->open = NULL;
+	info->plat_data->input_dev->close = NULL;
 	if (info->plat_data->support_ear_detect) {
 		input_unregister_device(info->plat_data->input_dev_proximity);
 		info->plat_data->input_dev_proximity = NULL;
@@ -9540,6 +9549,7 @@ error_allocate_pdata:
 err_no_platform_data:
 
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUMP_MODE)
+	dump_callbacks.inform_dump = NULL;
 	p_ghost_check = NULL;
 #endif
 	input_info(true, &client->dev, "%s: Failed to probe\n", __func__);
@@ -9565,7 +9575,7 @@ static int zt_ts_dev_remove(struct i2c_client *client)
 
 #if IS_ENABLED(CONFIG_TOUCHSCREEN_DUMP_MODE)
 	cancel_delayed_work_sync(&info->ghost_check);
-	sec_input_dumpkey_unregister(MULTI_DEV_NONE);
+	dump_callbacks.inform_dump = NULL;
 	p_ghost_check = NULL;
 #endif
 
