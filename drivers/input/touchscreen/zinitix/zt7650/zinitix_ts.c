@@ -9192,8 +9192,17 @@ static int zt_ts_probe(struct i2c_client *client,
 	struct device_node *np = client->dev.of_node;
 	int ret = 0;
 	bool force_update = false;
+	int lcdtype = 0;
 
 	input_info(true, &client->dev, "%s: start probe\n", __func__);
+
+#ifdef CONFIG_DISPLAY_SAMSUNG
+	lcdtype = get_lcd_attached("GET");
+	if (lcdtype == 0xFFFFFF || (((lcdtype >> 8) != 0x8000) && ((lcdtype >> 8) != 0x8040))) {
+		input_err(true, &client->dev, "%s: lcd is not attached %X\n", __func__, lcdtype);
+		return -ENODEV;
+	}
+#endif
 
 	if (client->dev.of_node) {
 		plat_data = devm_kzalloc(&client->dev,
