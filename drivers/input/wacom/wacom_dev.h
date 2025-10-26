@@ -1,5 +1,4 @@
 #include <linux/wakelock.h>
-#include <linux/input/sec_cmd.h>
 #include <linux/kernel.h>
 #include <linux/i2c.h>
 #include <linux/input.h>
@@ -14,6 +13,11 @@
 #include <linux/of_gpio.h>
 #include <linux/spu-verify.h>
 #include "wacom_reg.h"
+#if IS_ENABLED(CONFIG_INPUT_SEC_INPUT_V2)
+#include "../sec_input_v2/sec_input.h"
+#else 
+#include <linux/input/sec_cmd.h>
+#endif
 
 #undef CONFIG_USB_TYPEC_MANAGER_NOTIFIER
 #if defined(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
@@ -42,7 +46,7 @@ extern unsigned int lpcharge;
 #define WACOM_CMD_RETRY		2
 #define WACOM_INVALID_IRQ_COUNT	2
 
-#define CMD_RESULT_WORD_LEN	20
+#define WACOM_CMD_RESULT_WORD_LEN	20
 
 #define WACOM_I2C_MODE_NORMAL		false
 #define WACOM_I2C_MODE_BOOT		true
