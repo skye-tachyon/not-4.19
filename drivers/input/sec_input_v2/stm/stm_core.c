@@ -2779,6 +2779,14 @@ int stm_ts_probe(struct stm_ts_data *ts)
 
 	input_info(true, &ts->client->dev, "%s\n", __func__);
 
+#ifdef CONFIG_BATTERY_SAMSUNG
+	if (lpcharge == 1) {
+		input_err(true, &ts->client->dev, "%s: Do not load driver due to : lpm %d\n",
+				__func__, lpcharge);
+		return -ENODEV;
+	}
+#endif
+
 #if defined(CONFIG_DISPLAY_SAMSUNG)
 	lcdtype = get_lcd_attached("GET");
 	if (lcdtype == 0xFFFFFF || (lcdtype != 0x805080 && lcdtype != 0x805081)) {

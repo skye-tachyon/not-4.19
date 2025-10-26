@@ -351,6 +351,11 @@ void stm_ts_dump_tsp_log(struct device *dev)
 
 	pr_info("%s: %s %s: start\n", STM_TS_I2C_NAME, SECLOG, __func__);
 
+#ifdef CONFIG_BATTERY_SAMSUNG
+	if (lpcharge)
+		return;
+#endif
+
 	if (!ts) {
 		pr_err("%s: %s %s: ignored ## tsp probe fail!!\n", STM_TS_I2C_NAME, SECLOG, __func__);
 		return;

@@ -824,6 +824,9 @@ void stm_ts_trusted_touch_tvm_i2c_failure_report(struct stm_ts_data *ts);
 #endif
 #endif
 
+#ifdef CONFIG_BATTERY_SAMSUNG
+extern unsigned int lpcharge;
+#endif
 #if defined(CONFIG_DISPLAY_SAMSUNG)
 extern int get_lcd_attached(char *mode);
 #endif
