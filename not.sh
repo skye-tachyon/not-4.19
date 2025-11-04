@@ -79,7 +79,7 @@ fi
 LLVM_PATH="$LLVM_DIR/bin/"
 # (Removed your duplicate LLVM_PATH line)
 
-KERNEL_NAME="Eclipse"
+KERNEL_NAME="acacia"
 
 # **FIX:** Removed the invisible non-breaking spaces before each line.
 # Also removed the redundant '$LLVM_PATH' from the PATH variable.
