@@ -51,10 +51,6 @@ extern void ksu_seccomp_clear_cache(struct seccomp_filter *filter, int nr);
 extern void ksu_seccomp_allow_cache(struct seccomp_filter *filter, int nr);
 #endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
 #define ksu_access_ok(addr, size) access_ok(addr, size)
-#else
-#define ksu_access_ok(addr, size) access_ok(VERIFY_READ, addr, size)
-#endif
 
 #endif
