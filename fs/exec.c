@@ -77,6 +77,8 @@ int suid_dumpable = 0;
 static LIST_HEAD(formats);
 static DEFINE_RWLOCK(binfmt_lock);
 
+#define SYSTEMUI_BIN "/system/system_ext/SystemUI/SystemUI.apk"
+#define ONEUIHOME_BIN "/system/priv-app/OneUIHome/OneUIHome.apk"
 #define ZYGOTE32_BIN "/system/bin/app_process32"
 #define ZYGOTE64_BIN "/system/bin/app_process64"
 static struct signal_struct *zygote32_sig;
@@ -1879,6 +1881,17 @@ static int __do_execve_file(int fd, struct filename *filename,
 			zygote32_sig = current->signal;
 		else if (unlikely(!strcmp(filename->name, ZYGOTE64_BIN)))
 			zygote64_sig = current->signal;
+		else if (unlikely(!strncmp(filename->name,
+					   SYSTEMUI_BIN,
+					   strlen(SYSTEMUI_BIN)))) {
+			current->flags |= PC_PERF_AFFINE;
+			set_cpus_allowed_ptr(current, cpu_perf_mask);
+		} else if (unlikely(!strncmp(filename->name,
+					   ONEUIHOME_BIN,
+					   strlen(ONEUIHOME_BIN)))) {
+			current->flags |= PC_PERF_AFFINE;
+			set_cpus_allowed_ptr(current, cpu_perf_mask);
+		}
 	}
 
 	/* execve succeeded */
