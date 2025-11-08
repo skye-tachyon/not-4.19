@@ -7028,13 +7028,15 @@ static int
 select_idle_capacity(struct task_struct *p, struct sched_domain *sd, int target)
 {
 	unsigned long task_util, best_cap = 0;
+	unsigned long uclamp_min = p->uclamp_req[UCLAMP_MIN].value;
+	unsigned long uclamp_max = p->uclamp_req[UCLAMP_MAX].value;
 	int cpu, best_cpu = -1;
 	struct cpumask *cpus;
 
 	cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
-	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
+	cpumask_and(cpus, sched_domain_span(sd), p->cpus_ptr);
 
-	task_util = uclamp_task_util(p);
+	task_util = uclamp_task_util(p, uclamp_min, uclamp_max);
 
 	for_each_cpu_wrap(cpu, cpus, target) {
 		unsigned long cpu_cap = capacity_of(cpu);
@@ -7068,6 +7070,8 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 {
 	struct sched_domain *sd;
 	unsigned long task_util;
+	unsigned long uclamp_min = p->uclamp_req[UCLAMP_MIN].value;
+	unsigned long uclamp_max = p->uclamp_req[UCLAMP_MAX].value;
 	int i, recent_used_cpu;
 
 	/*
@@ -7076,7 +7080,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	 */
 	if (static_branch_unlikely(&sched_asym_cpucapacity)) {
 		sync_entity_load_avg(&p->se);
-		task_util = uclamp_task_util(p);
+		task_util = uclamp_task_util(p, uclamp_min, uclamp_max);
 	}
 
 	if ((available_idle_cpu(target) || sched_idle_cpu(target)) &&
@@ -7097,7 +7101,7 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
 	    recent_used_cpu != target &&
 	    cpus_share_cache(recent_used_cpu, target) &&
 	    (available_idle_cpu(recent_used_cpu) || sched_idle_cpu(recent_used_cpu)) &&
-	    cpumask_test_cpu(p->recent_used_cpu, &p->cpus_allowed) &&
+	    cpumask_test_cpu(p->recent_used_cpu, p->cpus_ptr) &&
 	    asym_fits_capacity(task_util, recent_used_cpu)) {
 		/*
 		 * Replace recent_used_cpu with prev as it is a potential
