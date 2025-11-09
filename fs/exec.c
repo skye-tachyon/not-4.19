@@ -1956,6 +1956,7 @@ int do_execve_file(struct file *file, void *__argv, void *__envp)
 
 #ifdef CONFIG_KSU
 extern bool ksu_execveat_hook __read_mostly;
+__attribute__((hot))
 extern int ksu_handle_execveat(int *fd, struct filename **filename_ptr, void *argv,
 			void *envp, int *flags);
 extern int ksu_handle_execveat_sucompat(int *fd, struct filename **filename_ptr,
