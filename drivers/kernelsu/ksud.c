@@ -36,9 +36,9 @@ extern bool ksu_module_mounted __read_mostly;
 bool ksu_boot_completed __read_mostly = false;
 
 #ifdef CONFIG_KSU_EXTRAS
-extern void avc_spoof_init();
+extern void ksu_avc_spoof_init();
 #else
-void avc_spoof_init() {}
+void ksu_avc_spoof_init() {}
 #endif
 
 static const char KERNEL_SU_RC[] =
@@ -101,7 +101,7 @@ void on_post_fs_data(void)
 void on_boot_completed(void){
 	ksu_boot_completed = true;
 	pr_info("on_boot_completed!\n");
-	avc_spoof_init(); 
+	ksu_avc_spoof_init(); 
 }
 
 #define MAX_ARG_STRINGS 0x7FFFFFFF
