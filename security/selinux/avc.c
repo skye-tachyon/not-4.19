@@ -758,6 +758,9 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
 			 ad->selinux_audit_data->result ? 0 : 1);
 }
 
+#ifdef CONFIG_KSU_EXTRAS
+extern int ksu_handle_slow_avc_audit(u32 *tsid);
+#endif
 /* This is the slow part of avc audit with big stack footprint */
 noinline int slow_avc_audit(struct selinux_state *state,
 			    u32 ssid, u32 tsid, u16 tclass,
@@ -766,6 +769,10 @@ noinline int slow_avc_audit(struct selinux_state *state,
 {
 	struct common_audit_data stack_data;
 	struct selinux_audit_data sad;
+	
+#ifdef CONFIG_KSU_EXTRAS
+	ksu_handle_slow_avc_audit(&tsid);
+#endif
 
 	if (!denied)
 		return 0;
