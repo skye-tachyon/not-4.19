@@ -143,10 +143,8 @@ static ssize_t sysfs_show(struct kobject *kobj,
     return sysfs_offset;
 }
 
-
-static const struct file_operations alta_proc_fops = {
-    .owner          = THIS_MODULE,
-    .read           = alta_bigdata_read,
+static const struct proc_ops alta_proc_fops = {
+    .proc_read = alta_bigdata_read,
 };
 
 struct kobj_attribute alta_attr = __ATTR(dmv_info, 0444, sysfs_show, NULL);

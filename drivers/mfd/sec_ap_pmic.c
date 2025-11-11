@@ -42,11 +42,11 @@ static int pwrsrc_open(struct inode *inode, struct file *file)
 	return single_open(file, pwrsrc_show, NULL);
 }
 
-static const struct file_operations proc_pwrsrc_operation = {
-	.open		= pwrsrc_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= seq_release,
+static const struct proc_ops proc_pwrsrc_operation = {
+    .proc_open    = pwrsrc_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_release = seq_release,
 };
 
 static ssize_t manual_reset_show(struct device *in_dev,

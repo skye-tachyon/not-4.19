@@ -224,8 +224,8 @@ static ssize_t sec_user_fault_write(struct file *file,
 	return count;
 }
 
-static const struct file_operations sec_user_fault_proc_fops = {
-	.write = sec_user_fault_write,
+static const struct proc_ops sec_user_fault_proc_fops = {
+    .proc_write = sec_user_fault_write,
 };
 
 static int __init sec_debug_user_fault_init(void)

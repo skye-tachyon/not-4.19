@@ -1417,11 +1417,11 @@ static int sec_errp_extra_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, sec_errp_extra_show, NULL);
 }
 
-static const struct file_operations sec_errp_extra_proc_fops = {
-	.open = sec_errp_extra_proc_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
+static const struct proc_ops sec_errp_extra_proc_fops = {
+    .proc_open    = sec_errp_extra_proc_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_release = single_release,
 };
 
 static struct notifier_block sec_hw_param_dbg_part_notifier = {

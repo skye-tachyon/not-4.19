@@ -1367,10 +1367,9 @@ static ssize_t fts_tsp_cmoffset_read(struct file *file, char __user *buf,
 	return fts_tsp_cmoffset_all_read(file, buf, len, offset);
 }
 
-static const struct file_operations tsp_cmoffset_all_file_ops = {
-	.owner = THIS_MODULE,
-	.read = fts_tsp_cmoffset_read,
-	.llseek = generic_file_llseek,
+static const struct proc_ops tsp_cmoffset_all_file_ops = {
+    .proc_read  = fts_tsp_cmoffset_read,
+    .proc_lseek = generic_file_llseek,
 };
 
 static void fts_init_proc(struct fts_ts_info *info)

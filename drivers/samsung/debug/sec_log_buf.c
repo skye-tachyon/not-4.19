@@ -144,9 +144,8 @@ static ssize_t sec_last_log_buf_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations last_log_buf_fops = {
-	.owner	= THIS_MODULE,
-	.read	= sec_last_log_buf_read,
+static const struct proc_ops last_log_buf_fops = {
+    .proc_read = sec_last_log_buf_read,
 };
 
 #define LAST_LOG_BUF_NODE		"last_kmsg"

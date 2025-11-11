@@ -138,12 +138,12 @@ static ssize_t proc_cpu_capacity_fixup_target_write(struct file *file,
 	return count;
 }
 
-static const struct file_operations proc_cpu_capacity_fixup_target_op = {
-	.open    = proc_cpu_capacity_fixup_target_open,
-	.read    = seq_read,
-	.llseek  = seq_lseek,
-	.write   = proc_cpu_capacity_fixup_target_write,
-	.release = single_release,
+static const struct proc_ops proc_cpu_capacity_fixup_target_op = {
+    .proc_open    = proc_cpu_capacity_fixup_target_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_write   = proc_cpu_capacity_fixup_target_write,
+    .proc_release = single_release,
 };
 #endif
 

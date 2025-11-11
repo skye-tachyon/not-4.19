@@ -41,16 +41,16 @@ static int meminfo_extra_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, meminfo_extra_proc_show, NULL);
 }
 
-static const struct file_operations meminfo_extra_proc_fops = {
-	.open		= meminfo_extra_proc_open,
-	.read		= seq_read,
-	.llseek		= seq_lseek,
-	.release	= single_release,
+static const struct proc_ops meminfo_extra_proc_ops = {
+	.proc_open	= meminfo_extra_proc_open,
+	.proc_read	= seq_read,
+	.proc_lseek	= seq_lseek,
+	.proc_release	= single_release,
 };
 
 static int __init proc_meminfo_extra_init(void)
 {
-	proc_create("meminfo_extra", 0444, NULL, &meminfo_extra_proc_fops);
+	proc_create("meminfo_extra", 0444, NULL, &meminfo_extra_proc_ops);
 	return 0;
 }
 fs_initcall(proc_meminfo_extra_init);

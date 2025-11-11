@@ -163,9 +163,8 @@ static ssize_t secdp_logger_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations secdp_logger_ops = {
-	.owner = THIS_MODULE,
-	.read = secdp_logger_read,
+static const struct proc_ops secdp_logger_ops = {
+    .proc_read = secdp_logger_read,
 };
 
 int secdp_logger_init(void)

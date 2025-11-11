@@ -204,11 +204,11 @@ static int sec_reset_reason_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, set_reset_reason_proc_show, NULL);
 }
 
-static const struct file_operations sec_reset_reason_proc_fops = {
-	.open = sec_reset_reason_proc_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
+static const struct proc_ops sec_reset_reason_proc_fops = {
+    .proc_open    = sec_reset_reason_proc_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_release = single_release,
 };
 
 static phys_addr_t sec_debug_reset_ex_info_paddr;
@@ -451,9 +451,8 @@ out:
 	return err < 0 ? err : count;
 }
 
-static const struct file_operations sec_debug_rdx_bootdev_fops = {
-	.owner = THIS_MODULE,
-	.write = sec_debug_rdx_bootdev_proc_write,
+static const struct proc_ops sec_debug_rdx_bootdev_fops = {
+    .proc_write = sec_debug_rdx_bootdev_proc_write,
 };
 
 static int sec_debug_get_rdx_bootdev_region(phys_addr_t *paddr, u64 *size)
@@ -699,9 +698,8 @@ static ssize_t sec_reset_summary_info_proc_read(struct file *file,
 	return count;
 }
 
-static const struct file_operations sec_reset_summary_info_proc_fops = {
-	.owner = THIS_MODULE,
-	.read = sec_reset_summary_info_proc_read,
+static const struct proc_ops sec_reset_summary_info_proc_fops = {
+    .proc_read = sec_reset_summary_info_proc_read,
 };
 
 static int sec_reset_klog_init(void)
@@ -827,9 +825,8 @@ static ssize_t sec_reset_klog_proc_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations sec_reset_klog_proc_fops = {
-	.owner = THIS_MODULE,
-	.read = sec_reset_klog_proc_read,
+static const struct proc_ops sec_reset_klog_proc_fops = {
+    .proc_read = sec_reset_klog_proc_read,
 };
 
 static int sec_reset_tzlog_init(void)
@@ -919,9 +916,8 @@ static ssize_t sec_reset_tzlog_proc_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations sec_reset_tzlog_proc_fops = {
-	.owner = THIS_MODULE,
-	.read = sec_reset_tzlog_proc_read,
+static const struct proc_ops sec_reset_tzlog_proc_fops = {
+    .proc_read = sec_reset_tzlog_proc_read,
 };
 
 static int set_store_lastkmsg_proc_show(struct seq_file *m, void *v)
@@ -952,11 +948,11 @@ static int sec_store_lastkmsg_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, set_store_lastkmsg_proc_show, NULL);
 }
 
-static const struct file_operations sec_store_lastkmsg_proc_fops = {
-	.open = sec_store_lastkmsg_proc_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
+static const struct proc_ops sec_store_lastkmsg_proc_fops = {
+    .proc_open    = sec_store_lastkmsg_proc_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_release = single_release,
 };
 
 static void sec_restore_modem_reset_data(void)
@@ -1103,9 +1099,8 @@ static ssize_t sec_auto_comment_info_proc_read(struct file *file,
 	return count;
 }
 
-static const struct file_operations sec_auto_comment_info_proc_fops = {
-	.owner = THIS_MODULE,
-	.read = sec_auto_comment_info_proc_read,
+static const struct proc_ops sec_auto_comment_info_proc_fops = {
+    .proc_read = sec_auto_comment_info_proc_read,
 };
 
 static int set_reset_rwc_proc_show(struct seq_file *m, void *v)
@@ -1120,11 +1115,11 @@ static int sec_reset_rwc_proc_open(struct inode *inode, struct file *file)
 	return single_open(file, set_reset_rwc_proc_show, NULL);
 }
 
-static const struct file_operations sec_reset_rwc_proc_fops = {
-	.open = sec_reset_rwc_proc_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
+static const struct proc_ops sec_reset_rwc_proc_fops = {
+    .proc_open    = sec_reset_rwc_proc_open,
+    .proc_read    = seq_read,
+    .proc_lseek   = seq_lseek,
+    .proc_release = single_release,
 };
 
 static int sec_reset_history_init(void)
@@ -1243,9 +1238,8 @@ static ssize_t sec_reset_history_proc_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations sec_reset_history_proc_fops = {
-	.owner = THIS_MODULE,
-	.read = sec_reset_history_proc_read,
+static const struct proc_ops sec_reset_history_proc_fops = {
+    .proc_read = sec_reset_history_proc_read,
 };
 
 static int sec_reset_reason_dbg_part_notifier_callback(

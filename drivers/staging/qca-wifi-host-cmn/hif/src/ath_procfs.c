@@ -198,9 +198,9 @@ out:
 		return -EIO;
 }
 
-static const struct file_operations athdiag_fops = {
-	.read = ath_procfs_diag_read,
-	.write = ath_procfs_diag_write,
+static const struct proc_ops athdiag_fops = {
+    .proc_read  = ath_procfs_diag_read,
+    .proc_write = ath_procfs_diag_write,
 };
 
 /*

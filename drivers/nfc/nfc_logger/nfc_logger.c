@@ -159,9 +159,8 @@ static ssize_t nfc_logger_read(struct file *file, char __user *buf, size_t len, 
 	return count;
 }
 
-static const struct file_operations nfc_logger_ops = {
-	.owner = THIS_MODULE,
-	.read = nfc_logger_read,
+static const struct proc_ops nfc_logger_ops = {
+    .proc_read = nfc_logger_read,
 };
 
 int nfc_logger_init(void)

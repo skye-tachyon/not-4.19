@@ -132,11 +132,10 @@ static ssize_t sec_avc_log_read(struct file *file, char __user *buf,
 	return count;
 }
 
-static const struct file_operations avc_msg_file_ops = {
-	.owner = THIS_MODULE,
-	.read = sec_avc_log_read,
-	.write = sec_avc_log_write,
-	.llseek = generic_file_llseek,
+static const struct proc_ops avc_msg_file_ops = {
+    .proc_read    = sec_avc_log_read,
+    .proc_write   = sec_avc_log_write,
+    .proc_lseek   = generic_file_llseek,
 };
 
 static int __init sec_avc_log_late_init(void)
