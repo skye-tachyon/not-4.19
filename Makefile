@@ -698,11 +698,25 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
 else
-KBUILD_CFLAGS   += -ffp-contract=fast
-KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
-KBUILD_CFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod -fno-trapping-math -fno-math-errno 
+KBUILD_CFLAGS   += -mcpu=cortex-a55+crypto+crc+dotprod+rcpc
+KBUILD_CFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod
+
+KBUILD_AFLAGS   += -mcpu=cortex-a55+crypto+crc+dotprod+rcpc
 KBUILD_AFLAGS   += -O3 -march=armv8.2-a+lse+crypto+dotprod
-KBUILD_LDFLAGS  += -O3 --plugin-opt=O3
+
+KBUILD_CFLAGS   += -fno-trapping-math -fno-math-errno -ffp-contract=fast
+KBUILD_CFLAGS   += -mllvm -hot-cold-split=true
+KBUILD_CFLAGS   += -mllvm -regalloc-enable-advisor=release
+
+KBUILD_CFLAGS	+= -mllvm -inline-threshold=2500
+KBUILD_CFLAGS	+= -mllvm -inlinehint-threshold=2000
+KBUILD_CFLAGS	+= -mllvm -unroll-threshold=1200
+
+KBUILD_LDFLAGS  += -mllvm -regalloc-enable-advisor=release
+KBUILD_LDFLAGS  += -mllvm -enable-ml-inliner=release
+KBUILD_LDFLAGS  += -mllvm -mcpu=cortex-a55
+KBUILD_LDFLAGS  += --strip-debug
+
 endif
 
 ifdef CONFIG_CC_WERROR
