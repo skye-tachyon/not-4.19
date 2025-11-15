@@ -1870,13 +1870,6 @@ int adreno_set_unsecured_mode(struct adreno_device *adreno_dev,
 	if (!adreno_is_a5xx(adreno_dev) && !adreno_is_a6xx(adreno_dev))
 		return -EINVAL;
 
-	if (ADRENO_QUIRK(adreno_dev, ADRENO_QUIRK_CRITICAL_PACKETS) &&
-			adreno_is_a5xx(adreno_dev)) {
-		ret = a5xx_critical_packet_submit(adreno_dev, rb);
-		if (ret)
-			return ret;
-	}
-
 	/* GPU comes up in secured mode, make it unsecured by default */
 	if (adreno_dev->zap_loaded)
 		ret = adreno_switch_to_unsecure_mode(adreno_dev, rb);
@@ -2316,20 +2309,12 @@ no_gx_power:
 
 static inline bool adreno_try_soft_reset(struct kgsl_device *device, int fault)
 {
-	struct adreno_device *adreno_dev = ADRENO_DEVICE(device);
-
 	/*
 	 * Do not do soft reset for a IOMMU fault (because the IOMMU hardware
-	 * needs a reset too) and also for below gpu
-	 * A304: It can't do SMMU programming of any kind after a soft reset
-	 * A612: IPC protocol between RGMU and CP will not restart after reset
-	 * A610: An across chip issue with reset line in all 11nm chips,
-	 * resulting in recommendation to not use soft reset
+	 * needs a reset too)
 	 */
 
-	if ((fault & ADRENO_IOMMU_PAGE_FAULT) || adreno_is_a304(adreno_dev) ||
-			adreno_is_a612(adreno_dev) ||
-			adreno_is_a610(adreno_dev))
+	if (fault & ADRENO_IOMMU_PAGE_FAULT)
 		return false;
 
 	return true;

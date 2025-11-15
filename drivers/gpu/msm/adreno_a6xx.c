@@ -261,43 +261,24 @@ __get_rbbm_clock_cntl_on(struct adreno_device *adreno_dev)
 static inline unsigned int
 __get_gmu_ao_cgc_mode_cntl(struct adreno_device *adreno_dev)
 {
-	if (adreno_is_a612(adreno_dev))
-		return 0x00000022;
-	else if (adreno_is_a615_family(adreno_dev))
-		return 0x00000222;
-	else
 		return 0x00020202;
 }
 
 static inline unsigned int
 __get_gmu_ao_cgc_delay_cntl(struct adreno_device *adreno_dev)
 {
-	if (adreno_is_a612(adreno_dev))
-		return 0x00000011;
-	else if (adreno_is_a615_family(adreno_dev))
-		return 0x00000111;
-	else
 		return 0x00010111;
 }
 
 static inline unsigned int
 __get_gmu_ao_cgc_hyst_cntl(struct adreno_device *adreno_dev)
 {
-	if (adreno_is_a612(adreno_dev))
-		return 0x00000055;
-	else if (adreno_is_a615_family(adreno_dev))
-		return 0x00000555;
-	else
 		return 0x00005555;
 }
 
 static unsigned int __get_gmu_wfi_config(struct adreno_device *adreno_dev)
 {
-	if (adreno_is_a620(adreno_dev) || adreno_is_a640(adreno_dev) ||
-		adreno_is_a650(adreno_dev))
-		return 0x00000002;
-
-	return 0x00000000;
+	return 0x00000002;
 }
 
 static void a6xx_hwcg_set(struct adreno_device *adreno_dev, bool on)
@@ -2270,47 +2251,6 @@ static struct adreno_perfcount_register a6xx_perfcounters_alwayson[] = {
 		A6XX_CP_ALWAYS_ON_COUNTER_HI, -1 },
 };
 
-static struct adreno_perfcount_register a6xx_perfcounters_glc[] = {
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_0_LO,
-		A6XX_RBBM_PERFCTR_GLC_0_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_0 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_1_LO,
-		A6XX_RBBM_PERFCTR_GLC_1_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_1 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_2_LO,
-		A6XX_RBBM_PERFCTR_GLC_2_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_2 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_3_LO,
-		A6XX_RBBM_PERFCTR_GLC_3_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_3 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_4_LO,
-		A6XX_RBBM_PERFCTR_GLC_4_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_4 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_5_LO,
-		A6XX_RBBM_PERFCTR_GLC_5_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_5 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_6_LO,
-		A6XX_RBBM_PERFCTR_GLC_6_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_6 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_GLC_7_LO,
-		A6XX_RBBM_PERFCTR_GLC_7_HI, -1, A6XX_RB_PERFCTR_GLC_SEL_7 },
-};
-
-static struct adreno_perfcount_register a6xx_perfcounters_fche[] = {
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_FCHE_0_LO,
-		A6XX_RBBM_PERFCTR_FCHE_0_HI, -1, A6XX_RB_PERFCTR_FCHE_SEL_0 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_FCHE_1_LO,
-		A6XX_RBBM_PERFCTR_FCHE_1_HI, -1, A6XX_RB_PERFCTR_FCHE_SEL_1 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_FCHE_2_LO,
-		A6XX_RBBM_PERFCTR_FCHE_2_HI, -1, A6XX_RB_PERFCTR_FCHE_SEL_2 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_FCHE_3_LO,
-		A6XX_RBBM_PERFCTR_FCHE_3_HI, -1, A6XX_RB_PERFCTR_FCHE_SEL_3 },
-};
-
-static struct adreno_perfcount_register a6xx_perfcounters_mhub[] = {
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_MHUB_0_LO,
-		A6XX_RBBM_PERFCTR_MHUB_0_HI, -1, A6XX_RB_PERFCTR_MHUB_SEL_0 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_MHUB_1_LO,
-		A6XX_RBBM_PERFCTR_MHUB_1_HI, -1, A6XX_RB_PERFCTR_MHUB_SEL_1 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_MHUB_2_LO,
-		A6XX_RBBM_PERFCTR_MHUB_2_HI, -1, A6XX_RB_PERFCTR_MHUB_SEL_2 },
-	{ KGSL_PERFCOUNTER_NOT_USED, 0, 0, A6XX_RBBM_PERFCTR_MHUB_3_LO,
-		A6XX_RBBM_PERFCTR_MHUB_3_HI, -1, A6XX_RB_PERFCTR_MHUB_SEL_3 },
-};
-
 /*
  * ADRENO_PERFCOUNTER_GROUP_RESTORE flag is enabled by default
  * because most of the perfcounter groups need to be restored
@@ -2358,42 +2298,6 @@ static struct adreno_perfcounters a6xx_perfcounters = {
 	ARRAY_SIZE(a6xx_perfcounter_groups),
 };
 
-static void a6xx_efuse_speed_bin(struct adreno_device *adreno_dev)
-{
-	unsigned int val;
-	unsigned int speed_bin[3];
-	struct kgsl_device *device = &adreno_dev->dev;
-
-	if (of_property_read_u32_array(device->pdev->dev.of_node,
-		"qcom,gpu-speed-bin", speed_bin, 3))
-		return;
-
-	adreno_efuse_read_u32(adreno_dev, speed_bin[0], &val);
-
-	adreno_dev->speed_bin = (val & speed_bin[1]) >> speed_bin[2];
-}
-
-static const struct {
-	int (*check)(struct adreno_device *adreno_dev);
-	void (*func)(struct adreno_device *adreno_dev);
-} a6xx_efuse_funcs[] = {
-	{ adreno_is_a615_family, a6xx_efuse_speed_bin },
-	{ adreno_is_a612, a6xx_efuse_speed_bin },
-};
-
-static void a6xx_check_features(struct adreno_device *adreno_dev)
-{
-	unsigned int i;
-
-	if (adreno_efuse_map(adreno_dev))
-		return;
-	for (i = 0; i < ARRAY_SIZE(a6xx_efuse_funcs); i++) {
-		if (a6xx_efuse_funcs[i].check(adreno_dev))
-			a6xx_efuse_funcs[i].func(adreno_dev);
-	}
-
-	adreno_efuse_unmap(adreno_dev);
-}
 static void a6xx_platform_setup(struct adreno_device *adreno_dev)
 {
 	struct adreno_gpudev *gpudev = ADRENO_GPU_DEVICE(adreno_dev);
@@ -2417,23 +2321,6 @@ static void a6xx_platform_setup(struct adreno_device *adreno_dev)
 		gpudev->vbif_xin_halt_ctrl0_mask =
 				A6XX_VBIF_XIN_HALT_CTRL0_MASK;
 
-	if (adreno_is_a702(adreno_dev)) {
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_GLC].regs =
-				a6xx_perfcounters_glc;
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_GLC].reg_count
-				= ARRAY_SIZE(a6xx_perfcounters_glc);
-
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_FCHE].regs =
-				a6xx_perfcounters_fche;
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_FCHE].reg_count
-				= ARRAY_SIZE(a6xx_perfcounters_fche);
-
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_MHUB].regs =
-				a6xx_perfcounters_mhub;
-		a6xx_perfcounter_groups[KGSL_PERFCOUNTER_GROUP_MHUB].reg_count
-				= ARRAY_SIZE(a6xx_perfcounters_mhub);
-	}
-
 	/* Set the GPU busy counter for frequency scaling */
 	adreno_dev->perfctr_pwr_lo = A6XX_GMU_CX_GMU_POWER_COUNTER_XOCLK_0_L;
 
@@ -2447,9 +2334,6 @@ static void a6xx_platform_setup(struct adreno_device *adreno_dev)
 
 	if (!ADRENO_FEATURE(adreno_dev, ADRENO_APRIV))
 		gpudev->cp_rb_cntl |= (1 << 27);
-
-	/* Check efuse bits for various capabilties */
-	a6xx_check_features(adreno_dev);
 }
 
 

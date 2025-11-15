@@ -460,7 +460,6 @@ int gmu_prealloc_req(struct kgsl_device *device, struct gmu_block_header *blk)
 static int gmu_memory_probe(struct kgsl_device *device)
 {
 	struct gmu_device *gmu = KGSL_GMU_DEVICE(device);
-	struct adreno_device *adreno_dev = ADRENO_DEVICE(device);
 
 	/* Allocates & maps memory for HFI */
 	if (IS_ERR_OR_NULL(gmu->hfi_mem))

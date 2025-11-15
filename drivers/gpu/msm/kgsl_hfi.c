@@ -175,7 +175,6 @@ static int hfi_queue_write(struct gmu_device *gmu, uint32_t queue_idx,
 void hfi_init(struct gmu_device *gmu)
 {
 	struct kgsl_hfi *hfi = &gmu->hfi;
-	struct adreno_device *adreno_dev = ADRENO_DEVICE(hfi->kgsldev);
 	struct gmu_memdesc *mem_addr = gmu->hfi_mem;
 	int i;
 	struct hfi_queue_table *tbl;

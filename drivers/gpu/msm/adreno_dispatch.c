@@ -1116,7 +1116,6 @@ static inline int _verify_cmdobj(struct kgsl_device_private *dev_priv,
 		struct kgsl_context *context, struct kgsl_drawobj *drawobj[],
 		uint32_t count)
 {
-	struct kgsl_device *device = dev_priv->device;
 	struct kgsl_memobj_node *ib;
 	unsigned int i;
 

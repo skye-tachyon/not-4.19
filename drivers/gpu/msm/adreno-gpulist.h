@@ -15,6 +15,7 @@ static const struct adreno_gpu_core adreno_gpu_core_##_name = { \
 	.features = ADRENO_DEPRECATED, \
 }
 
+#if 0
 static const struct adreno_reglist a306_vbif_regs[] = {
 	{ A3XX_VBIF_ROUND_ROBIN_QOS_ARB, 0x0003 },
 	{ A3XX_VBIF_OUT_RD_LIM_CONF0, 0x0000000A },
@@ -1002,6 +1003,7 @@ static const struct adreno_reglist a620_hwcg_regs[] = {
 	{A6XX_RBBM_CLOCK_DELAY_GMU_GX, 0x00000111},
 	{A6XX_RBBM_CLOCK_HYST_GMU_GX, 0x00000555},
 };
+#endif
 
 /* a620 and a650 */
 static const struct adreno_reglist a650_gbif_regs[] = {
@@ -1051,6 +1053,7 @@ static const struct a6xx_protected_regs a620_protected_regs[] = {
 	{ 0 },
 };
 
+#if 0
 static const struct adreno_a6xx_core adreno_gpu_core_a620 = {
 	.base = {
 		DEFINE_ADRENO_REV(ADRENO_REV_A620, 6, 2, 0, ANY_ID),
@@ -1165,6 +1168,7 @@ static const struct adreno_a6xx_core adreno_gpu_core_a640 = {
 	.protected_regs = a630_protected_regs,
 	.disable_tseskip = true,
 };
+#endif
 
 static const struct adreno_reglist a650_hwcg_regs[] = {
 	{A6XX_RBBM_CLOCK_CNTL_SP0, 0x02222222},
@@ -1275,6 +1279,7 @@ static const struct adreno_a6xx_core adreno_gpu_core_a650v2 = {
 	.disable_tseskip = true,
 };
 
+#if 0
 static const struct adreno_a6xx_core adreno_gpu_core_a680 = {
 	.base = {
 		DEFINE_ADRENO_REV(ADRENO_REV_A680, 6, 8, 0, ANY_ID),
@@ -1496,38 +1501,9 @@ static const struct adreno_a6xx_core adreno_gpu_core_a702 = {
 	.hang_detect_cycles = 0x3ffff,
 	.protected_regs = a620_protected_regs,
 };
+#endif
 
 static const struct adreno_gpu_core *adreno_gpulist[] = {
-	&adreno_gpu_core_a306.base,
-	&adreno_gpu_core_a306a.base,
-	&adreno_gpu_core_a304.base,
-	&adreno_gpu_core_a405,		/* Deprecated */
-	&adreno_gpu_core_a418,		/* Deprecated */
-	&adreno_gpu_core_a420,		/* Deprecated */
-	&adreno_gpu_core_a430,		/* Deprecated */
-	&adreno_gpu_core_a530v1,	/* Deprecated */
-	&adreno_gpu_core_a530v2.base,
-	&adreno_gpu_core_a530v3.base,
-	&adreno_gpu_core_a505.base,
-	&adreno_gpu_core_a506.base,
-	&adreno_gpu_core_a510.base,
-	&adreno_gpu_core_a540v1,	/* Deprecated */
-	&adreno_gpu_core_a540v2.base,
-	&adreno_gpu_core_a512.base,
-	&adreno_gpu_core_a508.base,
-	&adreno_gpu_core_a504.base,
-	&adreno_gpu_core_a630v1,	/* Deprecated */
-	&adreno_gpu_core_a630v2.base,
-	&adreno_gpu_core_a615.base,
-	&adreno_gpu_core_a618.base,
-	&adreno_gpu_core_a619.base,
-	&adreno_gpu_core_a620.base,
-	&adreno_gpu_core_a640.base,
 	&adreno_gpu_core_a650.base,
 	&adreno_gpu_core_a650v2.base,
-	&adreno_gpu_core_a680.base,
-	&adreno_gpu_core_a612.base,
-	&adreno_gpu_core_a616.base,
-	&adreno_gpu_core_a610.base,
-	&adreno_gpu_core_a702.base,
 };

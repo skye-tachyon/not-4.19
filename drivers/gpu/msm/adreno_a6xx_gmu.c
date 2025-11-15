@@ -591,7 +591,6 @@ static int load_gmu_fw(struct kgsl_device *device)
 static int a6xx_gmu_oob_set(struct kgsl_device *device,
 		enum oob_request req)
 {
-	struct adreno_device *adreno_dev = ADRENO_DEVICE(device);
 	struct gmu_device *gmu = KGSL_GMU_DEVICE(device);
 	int ret = 0;
 	int set, check;
@@ -636,7 +635,6 @@ static int a6xx_gmu_oob_set(struct kgsl_device *device,
 static inline void a6xx_gmu_oob_clear(struct kgsl_device *device,
 		enum oob_request req)
 {
-	struct adreno_device *adreno_dev = ADRENO_DEVICE(device);
 	struct gmu_device *gmu = KGSL_GMU_DEVICE(device);
 	int clear;
 
