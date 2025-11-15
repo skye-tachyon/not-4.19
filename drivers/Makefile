@@ -218,10 +218,6 @@ obj-$(CONFIG_REDRIVER)	        += redriver/
 # Motor
 obj-y				+= motor/
 
-# FIVE TEE driver
-obj-$(CONFIG_FIVE_TEE_DRIVER)	+= security/samsung/five_tee_driver/
-obj-$(CONFIG_ICD)		+= security/samsung/icdrv/
-
 # uH
 obj-$(CONFIG_UH)        += uh/
 
@@ -229,9 +225,6 @@ obj-$(CONFIG_UH)        += uh/
 ifeq ($(CONFIG_GATOR), y)
 	obj-$(CONFIG_GATOR)				+= gator/
 endif
-
-#TZIC
-obj-$(CONFIG_TZIC)  += security/samsung/tzic/
 
 # GNSS
 obj-$(CONFIG_GPS_BCM4753)	+= gps/
