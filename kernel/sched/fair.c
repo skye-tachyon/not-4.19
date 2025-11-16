@@ -83,15 +83,15 @@ unsigned int sysctl_sched_cstate_aware = 1;
  *
  * (CFS  default SCHED_TUNABLESCALING_LOG  = *(1+ilog(ncpus))
  */
-enum sched_tunable_scaling sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_LOG;
+enum sched_tunable_scaling sysctl_sched_tunable_scaling = SCHED_TUNABLESCALING_NONE;
 
 /*
  * Minimal preemption granularity for CPU-bound tasks:
  *
  * (default: 3 msec * (1 + ilog(ncpus)), units: nanoseconds)
  */
-unsigned int sysctl_sched_base_slice			= 3000000ULL;
-static unsigned int normalized_sysctl_sched_base_slice	= 3000000ULL;
+unsigned int sysctl_sched_base_slice			= 2800000ULL;
+static unsigned int normalized_sysctl_sched_base_slice	= 2800000ULL;
 
 const_debug unsigned int sysctl_sched_migration_cost	= 0UL;
 DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
@@ -132,20 +132,20 @@ unsigned int sysctl_sched_cfs_bandwidth_slice		= 5000UL;
  * The margin used when comparing utilization with CPU capacity:
  * util * margin < capacity * 1024
  *
- * (default: ~20%)
+ * (default: ~5%)
  */
-unsigned int capacity_margin				= 1280;
+unsigned int capacity_margin				= 1078;
 
 /*
  * The margin used when comparing utilization with CPU capacity.
  *
- * (default: ~20%)
+ * (default: ~5%)
  */
-#define fits_capacity(cap, max)	((cap) * 1280 < (max) * 1024)
+#define fits_capacity(cap, max)	((cap) * 1078 < (max) * 1024)
 
 unsigned int sched_capacity_margin_up[NR_CPUS] = {
-	[0 ... NR_CPUS - 1] = 1280
-}; /* ~20% margin */
+	[0 ... NR_CPUS - 1] = 1078
+}; /* ~5% margin */
 unsigned int sched_capacity_margin_down[NR_CPUS] = {
 	[0 ... NR_CPUS - 1] = 1078
 }; /* ~5% margin */
@@ -157,9 +157,9 @@ unsigned int sched_capacity_margin_down_boosted[NR_CPUS] = {
 }; /* not used for small cores, 72% margin for big, 72% margin for big+ */
 
 /* 1ms default for 20ms window size scaled to 1024 */
-unsigned int sysctl_sched_min_task_util_for_boost = 51;
+unsigned int sysctl_sched_min_task_util_for_boost = 60;
 /* 0.68ms default for 20ms window size scaled to 1024 */
-unsigned int sysctl_sched_min_task_util_for_colocation = 35;
+unsigned int sysctl_sched_min_task_util_for_colocation = 38;
 __read_mostly unsigned int sysctl_sched_prefer_spread;
 unsigned int sysctl_walt_rtg_cfs_boost_prio = 99; /* disabled by default */
 unsigned int sysctl_walt_low_latency_task_threshold; /* disabled by default */
