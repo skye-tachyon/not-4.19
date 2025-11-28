@@ -7798,22 +7798,12 @@ int dsi_display_pre_kickoff(struct drm_connector *connector,
 {
 	int rc = 0;
 	int i;
-#if defined(CONFIG_DISPLAY_SAMSUNG)
-	struct samsung_display_driver_data *vdd;
-#endif
 
 	/* check and setup MISR */
 	if (display->misr_enable)
 		_dsi_display_setup_misr(display);
 
 	rc = dsi_display_set_roi(display, params->rois);
-
-#if defined(CONFIG_DISPLAY_SAMSUNG)
-	/* SAMSUNG_FINGERPRINT */
-	vdd = display->panel->panel_private;
-	if (vdd->finger_mask_updated)
-		ss_send_hbm_fingermask_image_tx(vdd, vdd->finger_mask);
-#endif
 
 	/* dynamic DSI clock setting */
 	if (atomic_read(&display->clkrate_change_pending)) {
