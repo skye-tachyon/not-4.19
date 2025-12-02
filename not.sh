@@ -2,7 +2,7 @@
 LLVM_PATH="/home/skye/toolchains/neutron-clang/bin/"
 LLVM_PATH="/home/skye/toolchains/neutron-clang/bin/"
 
-KERNEL_NAME="DAMN"
+KERNEL_NAME="seconds-to-midnight"
 
 HOST_BUILD_ENV="ARCH=arm64 \
                 CC=${LLVM_PATH}clang \
