@@ -247,16 +247,8 @@ void sched_boost_parse_dt(void)
 }
 
 int sched_set_boost(int type)
-{
-	int ret = 0;
-
-	mutex_lock(&boost_mutex);
-	if (verify_boost_params(type))
-		_sched_set_boost(type);
-	else
-		ret = -EINVAL;
-	mutex_unlock(&boost_mutex);
-	return ret;
+{	
+	return 0;
 }
 
 int sched_boost_handler(struct ctl_table *table, int write,
