@@ -108,17 +108,20 @@
 
 /* External variables not in a header file. */
 extern int suid_dumpable;
+
 #ifdef CONFIG_COREDUMP
 extern int core_uses_pid;
 extern char core_pattern[];
 extern unsigned int core_pipe_limit;
 #endif
+
 extern int pid_max;
 extern int extra_free_kbytes;
 extern int pid_max_min, pid_max_max;
 extern int percpu_pagelist_fraction;
 extern int latencytop_enabled;
 extern unsigned int sysctl_nr_open_min, sysctl_nr_open_max;
+
 #ifndef CONFIG_MMU
 extern int sysctl_nr_trim_pages;
 #endif
@@ -140,16 +143,20 @@ static unsigned long zero_ul;
 static unsigned long one_ul = 1;
 static unsigned long long_max = LONG_MAX;
 static int one_hundred = 100;
+
 #ifdef CONFIG_INCREASE_MAXIMUM_SWAPPINESS
 static int max_swappiness = 200;
 #endif
+
 static int one_thousand = 1000;
 #ifdef CONFIG_PRINTK
 static int ten_thousand = 10000;
 #endif
+
 #ifdef CONFIG_PERF_EVENTS
 static int six_hundred_forty_kb = 640 * 1024;
 #endif
+
 static int max_kswapd_threads = MAX_KSWAPD_THREADS;
 static int two_hundred_fifty_five = 255;
 static int __maybe_unused two_hundred_million = 200000000;
@@ -168,6 +175,7 @@ static unsigned int one_hundred_thousand = 100000;
 static unsigned int min_cfs_boost_prio = 99;
 static unsigned int max_cfs_boost_prio = 119;
 #endif
+
 /* this is needed for the proc_doulongvec_minmax of vm_dirty_bytes */
 static unsigned long dirty_bytes_min = 2 * PAGE_SIZE;
 
@@ -417,7 +425,7 @@ static struct ctl_table kern_table[] = {
 		.procname	= "sched_child_runs_first",
 		.data		= &sysctl_sched_child_runs_first,
 		.maxlen		= sizeof(unsigned int),
-		.mode		= 0644,
+		.mode		= 0444,
 		.proc_handler	= proc_dointvec,
 	},
 #if defined(CONFIG_PREEMPT_TRACER) && defined(CONFIG_PREEMPTIRQ_EVENTS)
@@ -1592,7 +1600,7 @@ static struct ctl_table kern_table[] = {
 		.procname	= "perf_cpu_time_max_percent",
 		.data		= &sysctl_perf_cpu_time_max_percent,
 		.maxlen		= sizeof(sysctl_perf_cpu_time_max_percent),
-		.mode		= 0644,
+		.mode		= 0444,
 		.proc_handler	= perf_cpu_time_max_percent_handler,
 		.extra1		= SYSCTL_ZERO,
 		.extra2		= &one_hundred,
