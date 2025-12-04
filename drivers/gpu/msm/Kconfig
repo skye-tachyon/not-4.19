@@ -25,13 +25,22 @@ config DEVFREQ_GOV_QCOM_ADRENO_TZ
 	  using an "on demand" algorithm in conjunction with other
 	  components on Adreno platforms. This is not useful for non-Adreno
 	  devices.
+
+config DEVFREQ_GOV_QCOM_GPUBW_MON
+	tristate "GPU BW voting governor"
+	depends on DEVFREQ_GOV_QCOM_ADRENO_TZ
+	help
+	  This governor works together with Adreno Trustzone governor,
+	  and select bus frequency votes using an "on-demand" alorithm.
+	  This governor is unlikely to be useful for non-Adreno
+	  devices.
 	  
 config QCOM_ADRENO_DEFAULT_GOVERNOR
 	string "devfreq governor for the adreno core"
 	default "msm-adreno-tz" if DEVFREQ_GOV_QCOM_ADRENO_TZ
 	default "simple_ondemand"
 	depends on QCOM_KGSL
-
+	  
 config QCOM_KGSL_IOMMU
 	bool
 	default y if QCOM_KGSL && (MSM_IOMMU || ARM_SMMU)

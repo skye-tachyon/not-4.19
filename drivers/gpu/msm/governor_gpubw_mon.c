@@ -10,8 +10,7 @@
 #include <linux/of_platform.h>
 #include <linux/slab.h>
 
-#include "devfreq_trace.h"
-#include "governor.h"
+#include "../../devfreq/governor.h"
 
 #define MIN_BUSY                1000
 #define LONG_FLOOR              50000

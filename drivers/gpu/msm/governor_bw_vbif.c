@@ -7,7 +7,7 @@
 #include <linux/module.h>
 #include <linux/msm_adreno_devfreq.h>
 
-#include "governor.h"
+#include "../../devfreq/governor.h"
 
 static getbw_func extern_get_bw;
 static void *extern_get_bw_data;
@@ -140,5 +140,3 @@ module_exit(devfreq_vbif_exit);
 
 MODULE_DESCRIPTION("VBIF based GPU bus BW voting governor");
 MODULE_LICENSE("GPL v2");
-
-
