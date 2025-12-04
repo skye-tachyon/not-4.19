@@ -807,13 +807,13 @@ int a6xx_preemption_init(struct adreno_device *adreno_dev)
 		u32 count = 0;
 
 		postamble[count++] = cp_type7_packet(CP_REG_RMW, 3);
-		postamble[count++] = A6XX_RBBM_PERFCTR_SRAM_INIT_CMD;
+		postamble[count++] = 0x50e;
 		postamble[count++] = 0x0;
 		postamble[count++] = 0x1;
 
 		postamble[count++] = cp_type7_packet(CP_WAIT_REG_MEM, 6);
 		postamble[count++] = 0x3;
-		postamble[count++] = A6XX_RBBM_PERFCTR_SRAM_INIT_STATUS;
+		postamble[count++] = 0x50f;
 		postamble[count++] = 0x0;
 		postamble[count++] = 0x1;
 		postamble[count++] = 0x1;

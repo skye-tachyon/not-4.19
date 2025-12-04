@@ -6,7 +6,7 @@
 
 #include <linux/slab.h>
 
-#include "a5xx_reg.h"
+#include "a6xx_reg.h"
 #include "adreno.h"
 #include "adreno_perfcounter.h"
 #include "adreno_pm4types.h"
@@ -704,7 +704,7 @@ static void _power_counter_enable_alwayson(struct adreno_device *adreno_dev,
 		return;
 
 	kgsl_regwrite(KGSL_DEVICE(adreno_dev),
-		A5XX_GPMU_ALWAYS_ON_COUNTER_RESET, 1);
+		0xA87B, 1);
 	counters->groups[KGSL_PERFCOUNTER_GROUP_ALWAYSON_PWR].regs[0].value = 0;
 }
 
@@ -910,7 +910,7 @@ static int adreno_perfcounter_enable(struct adreno_device *adreno_dev,
 	case KGSL_PERFCOUNTER_GROUP_RBBM:
 		/* The following rbbm countable is not reliable on a540 */
 		if (adreno_is_a540(adreno_dev))
-			if (countable == A5XX_RBBM_ALWAYS_COUNT)
+			if (countable == 0x0)
 				return -EINVAL;
 	default:
 		return _perfcounter_enable_default(adreno_dev, counters, group,

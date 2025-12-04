@@ -7,7 +7,6 @@
 #include <linux/slab.h>
 
 #include "adreno.h"
-#include "adreno_a5xx.h"
 
 /*
  * Add a perfcounter to the per-fd list.
@@ -153,11 +152,10 @@ static long adreno_ioctl_preemption_counters_query(
 	struct adreno_device *adreno_dev = ADRENO_DEVICE(dev_priv->device);
 	struct adreno_gpudev *gpudev = ADRENO_GPU_DEVICE(adreno_dev);
 	struct kgsl_preemption_counters_query *read = data;
-	int size_level = A5XX_CP_CTXRECORD_PREEMPTION_COUNTER_SIZE;
+	int size_level = (16 * 4);
 	int levels_to_copy;
 
-	if (!adreno_is_a5xx(adreno_dev) ||
-		!adreno_is_preemption_enabled(adreno_dev))
+	if (!adreno_is_preemption_enabled(adreno_dev))
 		return -EOPNOTSUPP;
 
 	if (read->size_user < size_level)

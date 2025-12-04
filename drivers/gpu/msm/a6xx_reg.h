@@ -1202,4 +1202,3 @@
 	(((1 << A6XX_GPU_LLC_SCID_NUM_BITS) - 1) << A6XX_GPUHTW_LLC_SCID_SHIFT)
 
 #endif /* _A6XX_REG_H */
-
