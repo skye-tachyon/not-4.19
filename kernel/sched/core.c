@@ -1377,30 +1377,16 @@ long schedtune_task_margin(struct task_struct *task);
 unsigned int uclamp_task(struct task_struct *p)
 {
 	unsigned long util = task_util_est(p);
-#ifdef CONFIG_SCHED_TUNE
-	long margin = schedtune_task_margin(p);
-
-	trace_sched_boost_task(p, util, margin);
-
-	util += margin;
-#endif
-
 	return util;
 }
 
 bool uclamp_boosted(struct task_struct *p)
 {
-#ifdef CONFIG_SCHED_TUNE
-	return schedtune_task_boost(p) > 0;
-#endif
 	return false;
 }
 
 bool uclamp_latency_sensitive(struct task_struct *p)
 {
-#ifdef CONFIG_SCHED_TUNE
-	return schedtune_prefer_idle(p) != 0;
-#endif
 	return false;
 }
 #endif /* CONFIG_SMP */

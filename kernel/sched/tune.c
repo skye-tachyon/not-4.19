@@ -11,7 +11,6 @@
 #include "sched.h"
 
 bool schedtune_initialized = false;
-extern struct reciprocal_value schedtune_spc_rdiv;
 
 /* We hold schedtune boost in effect for at least this long */
 #define SCHEDTUNE_BOOST_HOLD_NS 50000000ULL
@@ -848,7 +847,6 @@ schedtune_init_cgroups(void)
 static int
 schedtune_init(void)
 {
-	schedtune_spc_rdiv = reciprocal_value(100);
 	schedtune_init_cgroups();
 	return 0;
 }

@@ -6175,88 +6175,11 @@ static int wake_affine(struct sched_domain *sd, struct task_struct *p,
 	return target;
 }
 
-#ifdef CONFIG_SCHED_TUNE
-struct reciprocal_value schedtune_spc_rdiv;
-
-static long
-schedtune_margin(unsigned long signal, long boost)
-{
-	long long margin = 0;
-
-	/*
-	 * Signal proportional compensation (SPC)
-	 *
-	 * The Boost (B) value is used to compute a Margin (M) which is
-	 * proportional to the complement of the original Signal (S):
-	 *   M = B * (SCHED_CAPACITY_SCALE - S)
-	 * The obtained M could be used by the caller to "boost" S.
-	 */
-	if (boost >= 0) {
-		margin  = SCHED_CAPACITY_SCALE - signal;
-		margin *= boost;
-	} else
-		margin = -signal * boost;
-
-	margin  = reciprocal_divide(margin, schedtune_spc_rdiv);
-
-	if (boost < 0)
-		margin *= -1;
-	return margin;
-}
-
-inline long
-schedtune_cpu_margin_with(unsigned long util, int cpu, struct task_struct *p)
-{
-	int boost = schedtune_cpu_boost_with(cpu, p);
-	long margin;
-
-	if (boost == 0)
-		margin = 0;
-	else
-		margin = schedtune_margin(util, boost);
-
-	trace_sched_boost_cpu(cpu, util, margin);
-
-	return margin;
-}
-
-long schedtune_task_margin(struct task_struct *task)
-{
-	int boost = schedtune_task_boost(task);
-	unsigned long util;
-	long margin;
-
-	if (boost == 0)
-		return 0;
-
-	util = task_util_est(task);
-	margin = schedtune_margin(util, boost);
-
-	return margin;
-}
-
-unsigned long
-stune_util(int cpu, unsigned long other_util,
-		 struct sched_walt_cpu_load *walt_load)
-{
-	unsigned long util = min_t(unsigned long, SCHED_CAPACITY_SCALE,
-				   cpu_util_freq(cpu, walt_load) + other_util);
-	long margin = schedtune_cpu_margin_with(util, cpu, NULL);
-
-	trace_sched_boost_cpu(cpu, util, margin);
-
-	return util + margin;
-}
-
-#else /* CONFIG_SCHED_TUNE */
-
 inline long
 schedtune_cpu_margin_with(unsigned long util, int cpu, struct task_struct *p)
 {
 	return 0;
 }
-
-#endif /* CONFIG_SCHED_TUNE */
 
 static unsigned long cpu_util_without(int cpu, struct task_struct *p);
 
