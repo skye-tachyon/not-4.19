@@ -7,6 +7,8 @@
 #include <linux/sched/clock.h>
 #include <linux/slab.h>
 
+#include "a3xx_reg.h"
+#include "a5xx_reg.h"
 #include "a6xx_reg.h"
 #include "adreno.h"
 #include "adreno_pm4types.h"
@@ -498,6 +500,7 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 	struct adreno_context *drawctxt = rb->drawctxt_active;
 	struct kgsl_context *context = NULL;
 	bool secured_ctxt = false;
+	static unsigned int _seq_cnt;
 
 	if (drawctxt != NULL && kgsl_context_detached(&drawctxt->base) &&
 		!is_internal_cmds(flags))
@@ -554,6 +557,18 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 	total_sizedwords += is_internal_cmds(flags) ? 2 : 0;
 
 	total_sizedwords += (secured_ctxt) ? 26 : 0;
+
+	/* _seq mem write for each submission */
+	if (adreno_is_a5xx(adreno_dev))
+		total_sizedwords += 4;
+
+	/* context rollover */
+	if (adreno_is_a3xx(adreno_dev))
+		total_sizedwords += 3;
+
+	/* For HLSQ updates below */
+	if (adreno_is_a3xx(adreno_dev))
+		total_sizedwords += 4;
 
 	if (gpudev->preemption_pre_ibsubmit &&
 			adreno_is_preemption_enabled(adreno_dev))
@@ -682,6 +697,16 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 		ringcmds += cp_protected_mode(adreno_dev, ringcmds, 1);
 
 	/*
+	 * Flush HLSQ lazy updates to make sure there are no
+	 * resources pending for indirect loads after the timestamp
+	 */
+	if (adreno_is_a3xx(adreno_dev)) {
+		*ringcmds++ = cp_packet(adreno_dev, CP_EVENT_WRITE, 1);
+		*ringcmds++ = 0x07; /* HLSQ_FLUSH */
+		ringcmds += cp_wait_for_idle(adreno_dev, ringcmds);
+	}
+
+	/*
 	 * Add any postIB required for profiling if it is enabled and has
 	 * assigned counters
 	 */
@@ -702,15 +727,26 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 	}
 
 	/*
+	 * Do a unique memory write from the GPU. This can be used in
+	 * early detection of timestamp interrupt storms to stave
+	 * off system collapse.
+	 */
+	if (adreno_is_a5xx(adreno_dev))
+		ringcmds += cp_mem_write(adreno_dev, ringcmds,
+				MEMSTORE_ID_GPU_ADDR(device,
+				KGSL_MEMSTORE_GLOBAL,
+				ref_wait_ts), ++_seq_cnt);
+
+	/*
 	 * end-of-pipeline timestamp.  If per context timestamps is not
 	 * enabled, then drawctxt will be NULL or internal command flag will be
 	 * set and hence the rb timestamp will be used in else statement below.
 	 */
 	*ringcmds++ = cp_mem_packet(adreno_dev, CP_EVENT_WRITE, 3, 1);
 	if (drawctxt || is_internal_cmds(flags))
-		*ringcmds++ = 4 | (1 << 31);
+		*ringcmds++ = CACHE_FLUSH_TS | (1 << 31);
 	else
-		*ringcmds++ = 4;
+		*ringcmds++ = CACHE_FLUSH_TS;
 
 	if (drawctxt && !is_internal_cmds(flags)) {
 		ringcmds += cp_gpuaddr(adreno_dev, ringcmds,
@@ -719,7 +755,7 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 
 		/* Write the end of pipeline timestamp to the ringbuffer too */
 		*ringcmds++ = cp_mem_packet(adreno_dev, CP_EVENT_WRITE, 3, 1);
-		*ringcmds++ = 4;
+		*ringcmds++ = CACHE_FLUSH_TS;
 		ringcmds += cp_gpuaddr(adreno_dev, ringcmds,
 			MEMSTORE_RB_GPU_ADDR(device, rb, eoptimestamp));
 		*ringcmds++ = rb->timestamp;
@@ -731,6 +767,14 @@ adreno_ringbuffer_addcmds(struct adreno_ringbuffer *rb,
 
 	if (gpudev->set_marker)
 		ringcmds += gpudev->set_marker(ringcmds, IFPC_ENABLE);
+
+	if (adreno_is_a3xx(adreno_dev)) {
+		/* Dummy set-constant to trigger context rollover */
+		*ringcmds++ = cp_packet(adreno_dev, CP_SET_CONSTANT, 2);
+		*ringcmds++ =
+			(0x4<<16) | (A3XX_HLSQ_CL_KERNEL_GROUP_X_REG - 0x2000);
+		*ringcmds++ = 0;
+	}
 
 	if (flags & KGSL_CMD_FLAGS_WFI)
 		ringcmds += cp_wait_for_idle(adreno_dev, ringcmds);
@@ -850,7 +894,13 @@ static inline int _get_alwayson_counter(struct adreno_device *adreno_dev,
 	 * will be masked. Only do 32 bit CP reads for keeping the
 	 * numbers consistent
 	 */
-	if (adreno_is_a6xx(adreno_dev)) {
+	if (adreno_is_a5xx(adreno_dev)) {
+		if (ADRENO_GPUREV(adreno_dev) <= ADRENO_REV_A530)
+			*p++ = A5XX_RBBM_ALWAYSON_COUNTER_LO;
+		else
+			*p++ = A5XX_RBBM_ALWAYSON_COUNTER_LO |
+				(1 << 30) | (2 << 18);
+	} else if (adreno_is_a6xx(adreno_dev)) {
 		*p++ = A6XX_CP_ALWAYS_ON_COUNTER_LO |
 			(1 << 30) | (2 << 18);
 	}

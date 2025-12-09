@@ -14,75 +14,9 @@
 #define TRACE_INCLUDE_FILE adreno_trace
 
 #include <linux/tracepoint.h>
+#include "adreno_a3xx.h"
+#include "adreno_a5xx.h"
 
-/* A6XX interrupt bits */
-#define A6XX_INT_RBBM_GPU_IDLE           0
-#define A6XX_INT_RBBM_AHB_ERROR          1
-#define A6XX_INT_RBBM_TRANSFER_TIMEOUT   2
-#define A6XX_INT_RBBM_ME_MS_TIMEOUT      3
-#define A6XX_INT_RBBM_PFP_MS_TIMEOUT     4
-#define A6XX_INT_RBBM_ETS_MS_TIMEOUT     5
-#define A6XX_INT_RBBM_ATB_ASYNC_OVERFLOW 6
-#define A6XX_INT_RBBM_GPC_ERROR          7
-#define A6XX_INT_CP_SW                   8
-#define A6XX_INT_CP_HW_ERROR             9
-#define A6XX_INT_CP_CCU_FLUSH_DEPTH_TS   10
-#define A6XX_INT_CP_CCU_FLUSH_COLOR_TS   11
-#define A6XX_INT_CP_CCU_RESOLVE_TS       12
-#define A6XX_INT_CP_IB2                  13
-#define A6XX_INT_CP_IB1                  14
-#define A6XX_INT_CP_RB                   15
-#define A6XX_INT_CP_UNUSED_1             16
-#define A6XX_INT_CP_RB_DONE_TS           17
-#define A6XX_INT_CP_WT_DONE_TS           18
-#define A6XX_INT_UNKNOWN_1               19
-#define A6XX_INT_CP_CACHE_FLUSH_TS       20
-#define A6XX_INT_UNUSED_2                21
-#define A6XX_INT_RBBM_ATB_BUS_OVERFLOW   22
-#define A6XX_INT_MISC_HANG_DETECT        23
-#define A6XX_INT_UCHE_OOB_ACCESS         24
-#define A6XX_INT_UCHE_TRAP_INTR          25
-#define A6XX_INT_DEBBUS_INTR_0           26
-#define A6XX_INT_DEBBUS_INTR_1           27
-#define A6XX_INT_GPMU_VOLTAGE_DROOP      28
-#define A6XX_INT_GPMU_FIRMWARE           29
-#define A6XX_INT_ISDB_CPU_IRQ            30
-#define A6XX_INT_ISDB_UNDER_DEBUG        31
-
-#define A6XX_IRQ_FLAGS \
-	{ BIT(A6XX_INT_RBBM_GPU_IDLE), "RBBM_GPU_IDLE" }, \
-	{ BIT(A6XX_INT_RBBM_AHB_ERROR), "RBBM_AHB_ERR" }, \
-	{ BIT(A6XX_INT_RBBM_TRANSFER_TIMEOUT), "RBBM_TRANSFER_TIMEOUT" }, \
-	{ BIT(A6XX_INT_RBBM_ME_MS_TIMEOUT), "RBBM_ME_MS_TIMEOUT" }, \
-	{ BIT(A6XX_INT_RBBM_PFP_MS_TIMEOUT), "RBBM_PFP_MS_TIMEOUT" }, \
-	{ BIT(A6XX_INT_RBBM_ETS_MS_TIMEOUT), "RBBM_ETS_MS_TIMEOUT" }, \
-	{ BIT(A6XX_INT_RBBM_ATB_ASYNC_OVERFLOW), "RBBM_ATB_ASYNC_OVERFLOW" }, \
-	{ BIT(A6XX_INT_RBBM_GPC_ERROR), "RBBM_GPC_ERR" }, \
-	{ BIT(A6XX_INT_CP_SW), "CP_SW" }, \
-	{ BIT(A6XX_INT_CP_HW_ERROR), "CP_OPCODE_ERROR" }, \
-	{ BIT(A6XX_INT_CP_CCU_FLUSH_DEPTH_TS), "CP_CCU_FLUSH_DEPTH_TS" }, \
-	{ BIT(A6XX_INT_CP_CCU_FLUSH_COLOR_TS), "CP_CCU_FLUSH_COLOR_TS" }, \
-	{ BIT(A6XX_INT_CP_CCU_RESOLVE_TS), "CP_CCU_RESOLVE_TS" }, \
-	{ BIT(A6XX_INT_CP_IB2), "CP_IB2_INT" }, \
-	{ BIT(A6XX_INT_CP_IB1), "CP_IB1_INT" }, \
-	{ BIT(A6XX_INT_CP_RB), "CP_RB_INT" }, \
-	{ BIT(A6XX_INT_CP_UNUSED_1), "CP_UNUSED_1" }, \
-	{ BIT(A6XX_INT_CP_RB_DONE_TS), "CP_RB_DONE_TS" }, \
-	{ BIT(A6XX_INT_CP_WT_DONE_TS), "CP_WT_DONE_TS" }, \
-	{ BIT(A6XX_INT_UNKNOWN_1), "UNKNOWN_1" }, \
-	{ BIT(A6XX_INT_CP_CACHE_FLUSH_TS), "CP_CACHE_FLUSH_TS" }, \
-	{ BIT(A6XX_INT_UNUSED_2), "UNUSED_2" }, \
-	{ BIT(A6XX_INT_RBBM_ATB_BUS_OVERFLOW), "RBBM_ATB_BUS_OVERFLOW" }, \
-	{ BIT(A6XX_INT_MISC_HANG_DETECT), "MISC_HANG_DETECT" }, \
-	{ BIT(A6XX_INT_UCHE_OOB_ACCESS), "UCHE_OOB_ACCESS" }, \
-	{ BIT(A6XX_INT_UCHE_TRAP_INTR), "UCHE_TRAP_INTR" }, \
-	{ BIT(A6XX_INT_DEBBUS_INTR_0), "DEBBUS_INTR_0" }, \
-	{ BIT(A6XX_INT_DEBBUS_INTR_1), "DEBBUS_INTR_1" }, \
-	{ BIT(A6XX_INT_GPMU_VOLTAGE_DROOP), "GPMU_VOLTAGE_DROOP" }, \
-	{ BIT(A6XX_INT_GPMU_FIRMWARE), "GPMU_FIRMWARE" }, \
-	{ BIT(A6XX_INT_ISDB_CPU_IRQ), "ISDB_CPU_IRQ" }, \
-	{ BIT(A6XX_INT_ISDB_UNDER_DEBUG), "ISDB_UNDER_DEBUG" }
-	
 TRACE_EVENT(adreno_cmdbatch_queued,
 	TP_PROTO(struct kgsl_drawobj *drawobj, unsigned int queued),
 	TP_ARGS(drawobj, queued),
@@ -382,9 +316,9 @@ TRACE_EVENT(adreno_sp_tp,
 );
 
 /*
- * Tracepoint for a6xx irq. Includes status info
+ * Tracepoint for a3xx irq. Includes status info
  */
-TRACE_EVENT(kgsl_a6xx_irq_status,
+TRACE_EVENT(kgsl_a3xx_irq_status,
 
 	TP_PROTO(struct adreno_device *adreno_dev, unsigned int status),
 
@@ -404,7 +338,34 @@ TRACE_EVENT(kgsl_a6xx_irq_status,
 		"d_name=%s status=%s",
 		__get_str(device_name),
 		__entry->status ? __print_flags(__entry->status, "|",
-			A6XX_IRQ_FLAGS) : "None"
+			A3XX_IRQ_FLAGS) : "None"
+	)
+);
+
+/*
+ * Tracepoint for a5xx irq. Includes status info
+ */
+TRACE_EVENT(kgsl_a5xx_irq_status,
+
+	TP_PROTO(struct adreno_device *adreno_dev, unsigned int status),
+
+	TP_ARGS(adreno_dev, status),
+
+	TP_STRUCT__entry(
+		__string(device_name, adreno_dev->dev.name)
+		__field(unsigned int, status)
+	),
+
+	TP_fast_assign(
+		__assign_str(device_name, adreno_dev->dev.name);
+		__entry->status = status;
+	),
+
+	TP_printk(
+		"d_name=%s status=%s",
+		__get_str(device_name),
+		__entry->status ? __print_flags(__entry->status, "|",
+			A5XX_IRQ_FLAGS) : "None"
 	)
 );
 

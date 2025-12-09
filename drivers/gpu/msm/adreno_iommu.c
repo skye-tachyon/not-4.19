@@ -6,6 +6,7 @@
 
 #include <linux/slab.h>
 
+#include "a3xx_reg.h"
 #include "a6xx_reg.h"
 #include "adreno.h"
 #include "adreno_iommu.h"
@@ -43,20 +44,20 @@ static unsigned int a3xx_vbif_lock(struct adreno_device *adreno_dev,
 	 * glue commands together until next
 	 * WAIT_FOR_ME
 	 */
-	cmds += a3xx_wait_reg(adreno_dev, cmds, 0x01F5,
+	cmds += a3xx_wait_reg(adreno_dev, cmds, A3XX_CP_WFI_PEND_CTR,
 			1, 0xFFFFFFFF, 0xF);
 
 	/* MMU-500 VBIF stall */
 	*cmds++ = cp_packet(adreno_dev, CP_REG_RMW, 3);
-	*cmds++ = 0x3800;
+	*cmds++ = A3XX_VBIF_DDR_OUTPUT_RECOVERABLE_HALT_CTRL0;
 	/* AND to unmask the HALT bit */
-	*cmds++ = ~(0x1);
+	*cmds++ = ~(VBIF_RECOVERABLE_HALT_CTRL);
 	/* OR to set the HALT bit */
 	*cmds++ = 0x1;
 
 	/* Wait for acknowledgment */
 	cmds += a3xx_wait_reg(adreno_dev, cmds,
-			0x3801,
+			A3XX_VBIF_DDR_OUTPUT_RECOVERABLE_HALT_CTRL1,
 			1, 0xFFFFFFFF, 0xF);
 
 	return cmds - start;
@@ -69,9 +70,9 @@ static unsigned int a3xx_vbif_unlock(struct adreno_device *adreno_dev,
 
 	/* MMU-500 VBIF unstall */
 	*cmds++ = cp_packet(adreno_dev, CP_REG_RMW, 3);
-	*cmds++ = 0x3800;
+	*cmds++ = A3XX_VBIF_DDR_OUTPUT_RECOVERABLE_HALT_CTRL0;
 	/* AND to unmask the HALT bit */
-	*cmds++ = ~(0x1);
+	*cmds++ = ~(VBIF_RECOVERABLE_HALT_CTRL);
 	/* OR to reset the HALT bit */
 	*cmds++ = 0;
 
