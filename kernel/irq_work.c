@@ -130,36 +130,6 @@ bool irq_work_needs_cpu(void)
 	return true;
 }
 
-void irq_work_single(void *arg)
-{
-	struct irq_work *work = arg;
-	int flags;
-
-	/*
-	 * Clear the PENDING bit, after this point the @work can be re-used.
-	 * The PENDING bit acts as a lock, and we own it, so we can clear it
-	 * without atomic ops.
-	 */
-	flags = atomic_read(&work->flags);
-	flags &= ~IRQ_WORK_PENDING;
-	atomic_set(&work->flags, flags);
-
-	/*
-	 * See irq_work_claim().
-	 */
-	smp_mb();
-
-	lockdep_irq_work_enter(flags);
-	work->func(work);
-	lockdep_irq_work_exit(flags);
-
-	/*
-	 * Clear the BUSY bit, if set, and return to the free state if no one
-	 * else claimed it meanwhile.
-	 */
-	(void)atomic_cmpxchg(&work->flags, flags, flags & ~IRQ_WORK_BUSY);
-}
-
 static void irq_work_run_list(struct llist_head *list)
 {
 	struct irq_work *work, *tmp;

@@ -2190,11 +2190,6 @@ static struct task_struct *pick_next_pushable_task(struct rq *rq)
  * running task can migrate over to a CPU that is running a task
  * of lesser priority.
  */
-/*
- * If the current CPU has more than one RT task, see if the non
- * running task can migrate over to a CPU that is running a task
- * of lesser priority.
- */
 static int push_rt_task(struct rq *rq)
 {
 	struct task_struct *next_task;
@@ -2261,7 +2256,9 @@ retry:
 	}
 
 	deactivate_task(rq, next_task, 0);
+	next_task->on_rq = TASK_ON_RQ_MIGRATING;
 	set_task_cpu(next_task, lowest_rq->cpu);
+	next_task->on_rq = TASK_ON_RQ_QUEUED;
 	activate_task(lowest_rq, next_task, 0);
 	ret = 1;
 
