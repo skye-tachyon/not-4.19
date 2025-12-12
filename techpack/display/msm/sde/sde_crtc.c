@@ -4966,7 +4966,7 @@ sde_crtc_setup_fod_dim_layer(struct sde_crtc_state *cstate, uint32_t stage)
 	}
 
 	mutex_lock(&display->panel->panel_lock);
-	alpha = dsi_panel_get_fod_dim_alpha(display->panel);
+	alpha = display->panel->fod_dim_alpha;
 	mutex_unlock(&display->panel->panel_lock);
 
 	dim_layer = &cstate->dim_layer[cstate->num_dim_layers];
@@ -4989,6 +4989,7 @@ static void
 sde_crtc_fod_atomic_check(struct sde_crtc_state *cstate,
 			  struct plane_state *pstates, int cnt)
 {
+	struct sde_hw_dim_layer *fod_dim_layer;
 	uint32_t dim_layer_stage;
 	int plane_idx;
 
@@ -4997,14 +4998,19 @@ sde_crtc_fod_atomic_check(struct sde_crtc_state *cstate,
 			break;
 
 	if (plane_idx == cnt) {
-		cstate->fod_dim_layer = NULL;
+		fod_dim_layer = NULL;
 	} else {
 		dim_layer_stage = pstates[plane_idx].stage;
-		cstate->fod_dim_layer = sde_crtc_setup_fod_dim_layer(cstate,
+		fod_dim_layer = sde_crtc_setup_fod_dim_layer(cstate,
 							     dim_layer_stage);
 	}
 
-	if (!cstate->fod_dim_layer)
+	if (fod_dim_layer == cstate->fod_dim_layer)
+		return;
+
+	cstate->fod_dim_layer = fod_dim_layer;
+
+	if (!fod_dim_layer)
 		return;
 
 	for (plane_idx = 0; plane_idx < cnt; plane_idx++)
