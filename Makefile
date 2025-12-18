@@ -709,7 +709,13 @@ KBUILD_LDFLAGS  += --strip-debug
 else
 KBUILD_CFLAGS   += -O3
 KBUILD_AFLAGS   += -O3
-KBUILD_LDFLAGS  += -O3 --strip-debug --lto-O3
+KBUILD_LDFLAGS  += -O3 --strip-debug
+ifeq ($(CONFIG_LTO_CLANG),y)
+ifeq ($(CONFIG_LD_IS_LLD), y)
+KBUILD_LDFLAGS	+= -O3 --lto-O3
+LDFLAGS	+= -O3 --lto-O3
+endif
+endif
 endif
 
 # Compiler optimizations
