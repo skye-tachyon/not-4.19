@@ -33,16 +33,14 @@ echo "*****************************************"
 
 # Build Device Tree Blob//Overlay
 
-make -j12 O="$OUT_DIR" $KERNEL_MAKE_ENV $HOST_BUILD_ENV \
-     CC="${LLVM_PATH}clang --target=aarch64-linux-gnu" dtbo.img
+make -j12 O="$OUT_DIR" $KERNEL_MAKE_ENV $HOST_BUILD_ENV dtbo.img
 
 cp "$DTBO_OUT/dtbo.img" "$ANYKERNEL_DIR/dtbo.img"
 cat "$DTB_OUT"/*.dtb > "$ANYKERNEL_DIR/kona.dtb"
 
 # Build Kernel Image
 
-make -j12 O="$OUT_DIR" $KERNEL_MAKE_ENV $HOST_BUILD_ENV \
-     CC="${LLVM_PATH}clang --target=aarch64-linux-gnu" Image
+make -j12 O="$OUT_DIR" $KERNEL_MAKE_ENV $HOST_BUILD_ENV Image
 
 echo "**Build outputs**"
 ls "$OUT_DIR/arch/arm64/boot"
