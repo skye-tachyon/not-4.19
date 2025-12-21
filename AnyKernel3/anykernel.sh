@@ -57,23 +57,15 @@ if [ -n "$oneui" ]; then
    ui_print " "
    ui_print " • OneUI ROM detected! • " # OneUI 7.X/6.X/5.X/4.X/3.X bomb
    ui_print " "
-   ui_print " • Patching Fingerprint Sensor... • "
-   patch_cmdline "android.is_aosp" "android.is_aosp=0";
 elif [ $gsi == generic ]; then
    ui_print " "
    ui_print " • GSI ROM detected! • " # i hope the gsi doesnt boot :)
-   ui_print " "
-   ui_print " • Patching Fingerprint Sensor... • "
-   patch_cmdline "android.is_aosp" "android.is_aosp=0";
    ui_print " "
    ui_print " • Patching SELinux... • "
    patch_cmdline "androidboot.selinux" "androidboot.selinux=permissive";
 elif [ $cos == oplus ]; then
    ui_print " "
    ui_print " • Oplus ROM detected! • " # Damn
-   ui_print " "
-   ui_print " • Patching Fingerprint Sensor... • "
-   patch_cmdline "android.is_aosp" "android.is_aosp=0";
    ui_print " "
    ui_print " • Patching SELinux... • "
    patch_cmdline "androidboot.selinux" "androidboot.selinux=permissive";
@@ -84,15 +76,9 @@ else
    ui_print " "
    ui_print " • AOSP ROM detected! • " # Android 16/15/14/13 veri gud
    ui_print " "
-   ui_print " • Patching Fingerprint Sensor... • "
-   patch_cmdline "android.is_aosp" "android.is_aosp=1";
-   ui_print " "
    ui_print " • Spoofing verified boot state to green... • "
    patch_cmdline "ro.boot.verifiedbootstate=orange" "ro.boot.verifiedbootstate=green";
 fi
-ui_print " "
-ui_print " • Disabling Android MemCG... • "
-   patch_cmdline "androidboot.memcg=1" "androidboot.memcg=0";
 
 ui_print " "
 ui_print " • Patching vbmeta unconditionally... • "
