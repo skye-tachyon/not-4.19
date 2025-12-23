@@ -163,7 +163,7 @@ static int devfreq_clock_probe(struct platform_device *pdev)
 		p->polling_ms = poll;
 
 	if (of_property_read_string(dev->of_node, "governor", &gov_name))
-		gov_name = "performance";
+		gov_name = "simple_ondemand";
 
 	if (of_property_read_bool(dev->of_node, "qcom,prepare-clk")) {
 		ret = clk_prepare(d->clk);
