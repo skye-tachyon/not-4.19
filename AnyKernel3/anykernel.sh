@@ -13,11 +13,11 @@ do.cleanuponabort=0
 device.name1=r8q
 device.name2=r8qxx
 device.name3=r8qxxx
-device.name4=
-device.name5=
-supported.versions=
+device.name4=mustang
+supported.versions=11 - 18
 supported.patchlevels=
 '; } # end properties
+# i use pixel 10 pro xl spoof in my r8q, thats why mustang is there, no-one will flash a 4.19 kernel on p10pxl anyway
 
 # shell variables
 block=/dev/block/platform/soc/1d84000.ufshc/by-name/boot;

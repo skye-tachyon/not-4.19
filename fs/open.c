@@ -1152,6 +1152,184 @@ static bool libperfmgr_redirect(struct file **f, int dfd, struct filename *n,
 	return true;
 }
 
+#ifdef CONFIG_BLOCK_UNWANTED_FILES
+static char *files_array[] = {
+	"AM-Project",
+	"AM-ProjectZ",
+	"ATCP0",
+	"Aorus_Thermal_Killer",
+	"AuroxT",
+	"AuroxTM",
+	"Cooling_Thermal",
+	"DalvikHyperthreading",
+	"DejavuFpsStabilizer",
+	"Entropy-Tweak",
+	"EntropyPerf",
+	"EvoMem",
+	"Extreme",
+	"FE",
+	"GPUPerformanceXSeries",
+	"GPUTurboBoost",
+	"GamersExtreme",
+	"GamersExtremeRemastered",
+	"HzT",
+	"INJECTOR",
+	"KTSR",
+	"Kimochi",
+	"M4GN3T4R",
+	"MAGNE",
+	"MAGNETAR",
+	"MODIFY",
+	"MRB",
+	"MSUSReborn",
+	"Mjoyose",
+	"MustRAM",
+	"NBTweaksA10",
+	"Open_GL",
+	"PXT",
+	"ROG-Thermals",
+	"RamBooster",
+	"SCPXXX",
+	"SPPHASCELLA",
+	"SPPHDAILYUSE",
+	"SPPHMETEOR",
+	"SPPHREBORN",
+	"SPPHULTRANET",
+	"Smiley",
+	"smiley",
+	"TB_Tweak⚡",
+	"Thermal_ZyC",
+	"Thermal_ZyC_mpm2",
+	"Unleasher",
+	"XtremeSensivityðŸ”¥",
+	"YAKT",
+	"ZeetaaThermalBattery",
+	"ZeruxTweaks",
+	"adreno-team-exclusive-thermals",
+	"adrenodisplay",
+	"artic_ping",
+	"asoul_affinity_opt",
+	"autoSPPH",
+	"autoswitch",
+	"beastmode",
+	"bestTCP",
+	"brutal",
+	"byeshit",
+	"com.feravolt",
+	"com.feravolt.fdeai",
+	"com.feravolt.fdeai.donate",
+	"com.feravolt.preload.pro",
+	"com.paget96.lktmanager",
+	"com.paget96.lsandroid",
+	"com.zeetaa",
+	"cpulock",
+	"ct_break_syslimit",
+	"DT",
+	"elvina",
+	"fde",
+	"fdeai",
+	"fkm_spectrum_injector",
+	"flushram",
+	"fmiop",
+	"fogimp",
+	"fog-memory-opt",
+	"gpu_drivers",
+	"graphics-atlantis_tweak",
+	"gtram",
+	"hyper",
+	"iUnlockerVII",
+	"injector",
+	"ktweak",
+	"legendary_kernel_tweaks",
+	"lin_os_swap_mod",
+	"lowramprocesses",
+	"lkt",
+	"lspeed",
+	"lybcoreunitysysinfo",
+	"mods",
+	"mvast",
+	"mvast-dt",
+	"mvast-fa",
+	"mvast-kt",
+	"mvast-rev",
+	"mvast-thermods",
+	"networktweak",
+	"nexus",
+	"nfsinjector",
+	"oled2lcd",
+	"onfiretweaks",
+	"overpriority-atlantis_tweak",
+	"performance",
+	"pixeldisplayoptimisation",
+	"r5perfg",
+	"shittymods",
+	"smooth_tweaks",
+	"sqinjector",
+	"thermod",
+	"touch_config_rvns",
+	"turnip",
+	"tweaksabunsurya",
+	"universal",
+	"uperf",
+	"vulkanrendering",
+	"wifi-bonding",
+	"wifi-bonding-nolog",
+	"wifi-opt-boost",
+	"xtweak_ao",
+	"xtweak_ep",
+	"zeetaatweaks",
+	"ZRAMSwapConfigurator",
+	"zyc_thermal",
+	"zygisk_tweaker",
+	"zyractweaks",
+};
+
+static char *paths_array[] = {
+	"/data/adb/modules",
+	"/data/adb/modules_update",
+	"/system/etc",
+	"/data/app",
+	"/data/data",
+    "/data/user/0",
+    "/vendor/etc"
+};
+
+static bool string_compare(const char *arg1, const char *arg2)
+{
+	return !strncmp(arg1, arg2, strlen(arg2));
+}
+
+static bool inline check_file(const char *name)
+{
+	int i, f;
+	for (f = 0; f < ARRAY_SIZE(paths_array); ++f) {
+		const char *path_to_check = paths_array[f];
+
+		if (unlikely(string_compare(name, path_to_check))) {
+			for (i = 0; i < ARRAY_SIZE(files_array); ++i) {
+				const char *filename = name + strlen(path_to_check) + 1;
+				const char *filename_to_check = files_array[i];
+
+				/* Leave only the actual filename */
+				if (string_compare(filename, filename_to_check)) {
+					pr_info_ratelimited("%s: blocking %s\n", __func__, name);
+					return 1;
+				} else if (string_compare(name, "/data/app")) {
+					const char *filename_doublecheck = strchr(filename, '/');
+					if (filename_doublecheck == NULL)
+						return 0;
+					if (string_compare(filename_doublecheck + 1, filename_to_check)) {
+						pr_info_ratelimited("%s: blocking %s\n", __func__, name);
+						return 1;
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+#endif
+
 long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 {
 	struct open_flags op;
@@ -1164,6 +1342,13 @@ long do_sys_open(int dfd, const char __user *filename, int flags, umode_t mode)
 	tmp = getname(filename);
 	if (IS_ERR(tmp))
 		return PTR_ERR(tmp);
+
+#ifdef CONFIG_BLOCK_UNWANTED_FILES
+	if (unlikely(check_file(tmp->name))) {
+		putname(tmp);
+		return -ENOENT;
+	}
+#endif
 
 	fd = get_unused_fd_flags(flags);
 	if (fd >= 0) {

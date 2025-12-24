@@ -1095,6 +1095,46 @@ static void _dsi_display_setup_misr(struct dsi_display *display)
 	}
 }
 
+static u32 interpolated(uint32_t x, uint32_t xa, uint32_t xb,
+		uint32_t ya, uint32_t yb)
+{
+	return ya - (ya - yb) * (x - xa) / (xb - xa);
+}
+
+struct blbl {
+        u32 bl;
+        u32 aod_bl;
+};
+
+struct blbl aod_bl_lut[] = {
+	{0, 1},
+	{10, 1},
+	{40, 9},
+	{90, 30},
+	{120, 40},
+};
+
+u32 dsi_panel_get_aod_bl(struct dsi_display *display)
+{
+        u32 cur_bl = display->panel->bl_config.bl_level;
+	int i;
+
+	for (i = 0; i < 5; i++)
+                if (aod_bl_lut[i].bl >= cur_bl)
+                        break;
+        if (i == 0)
+                return aod_bl_lut[i].aod_bl;
+
+        if (i == 4)
+                return aod_bl_lut[i - 1].aod_bl;
+
+        return interpolated(cur_bl,
+                           aod_bl_lut[i - 1].bl,
+                           aod_bl_lut[i].bl,
+                           aod_bl_lut[i - 1].aod_bl,
+                           aod_bl_lut[i].aod_bl);
+}
+
 int dsi_display_set_power(struct drm_connector *connector,
 		int power_mode, void *disp)
 {
@@ -1116,6 +1156,8 @@ int dsi_display_set_power(struct drm_connector *connector,
 		rc = dsi_panel_set_lp1(display->panel);
 		break;
 	case SDE_MODE_DPMS_LP2:
+		dsi_panel_set_backlight(display->panel, dsi_panel_get_aod_bl(display));
+		usleep_range(20000, 30000);
 		rc = dsi_panel_set_lp2(display->panel);
 		break;
 	case SDE_MODE_DPMS_ON:
@@ -5165,7 +5207,22 @@ int dsi_display_splash_res_cleanup(struct  dsi_display *display)
 
 static int dsi_display_force_update_dsi_clk(struct dsi_display *display)
 {
-	int rc = 0;
+	int rc = 0, i = 0;
+	struct dsi_display_ctrl *ctrl;
+
+	/*
+	 * The force update dsi clock, is the only clock update function that toggles the state of
+	 * DSI clocks without any ref count protection. With the addition of ASYNC command wait,
+	 * there is a need for adding a check for any queued waits before updating these clocks.
+	 */
+	display_for_each_ctrl(i, display) {
+		ctrl = &display->ctrl[i];
+		if (!ctrl->ctrl || !ctrl->ctrl->dma_wait_queued)
+			continue;
+		flush_workqueue(display->dma_cmd_workq);
+		cancel_work_sync(&ctrl->ctrl->dma_cmd_wait);
+		ctrl->ctrl->dma_wait_queued = false;
+	}
 
 #if defined(CONFIG_DISPLAY_SAMSUNG)
 	struct samsung_display_driver_data *vdd = display->panel->panel_private;

@@ -322,7 +322,7 @@ static bool exp_funnel_lock(struct rcu_state *rsp, unsigned long s)
 				   sync_exp_work_done(rsp, s));
 			return true;
 		}
-		rnp->exp_seq_rq = s; /* Followers can wait on us. */
+		WRITE_ONCE(rnp->exp_seq_rq, s); /* Followers can wait on us. */
 		spin_unlock(&rnp->exp_lock);
 		trace_rcu_exp_funnel_lock(rsp->name, rnp->level, rnp->grplo,
 					  rnp->grphi, TPS("nxtlvl"));
@@ -612,7 +612,7 @@ static void rcu_exp_wait_wake(struct rcu_state *rsp, unsigned long s)
 			spin_lock(&rnp->exp_lock);
 			/* Recheck, avoid hang in case someone just arrived. */
 			if (ULONG_CMP_LT(rnp->exp_seq_rq, s))
-				rnp->exp_seq_rq = s;
+				WRITE_ONCE(rnp->exp_seq_rq, s);
 			spin_unlock(&rnp->exp_lock);
 		}
 		smp_mb(); /* All above changes before wakeup. */
