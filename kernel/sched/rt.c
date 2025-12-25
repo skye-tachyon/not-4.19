@@ -1591,115 +1591,6 @@ static bool rt_task_fits_cpu(struct task_struct *p, int cpu)
 	return rt_task_fits_capacity(p, cpu) && !cpu_busy_with_softirqs(cpu);
 }
 
-static int
-select_task_rq_rt(struct task_struct *p, int cpu, int sd_flag, int flags,
-		  int sibling_count_hint)
-{
-	struct task_struct *curr, *tgt_task;
-	struct rq *rq;
-	struct rq *this_cpu_rq;
-	bool sync = !!(flags & WF_SYNC);
-	bool test;
-	int this_cpu;
-
-	/* For anything but wake ups, just return the task_cpu */
-	if (sd_flag != SD_BALANCE_WAKE && sd_flag != SD_BALANCE_FORK)
-		goto out;
-
-	rq = cpu_rq(cpu);
-
-	rcu_read_lock();
-	curr = READ_ONCE(rq->curr); /* unlocked access */
-	this_cpu = smp_processor_id();
-	this_cpu_rq = cpu_rq(this_cpu);
-
-	/*
-	 * If the current task on @p's runqueue is a softirq task,
-	 * it may run without preemption for a time that is
-	 * ill-suited for a waiting RT task. Therefore, try to
-	 * wake this RT task on another runqueue.
-	 *
-	 * Also, if the current task on @p's runqueue is an RT task, then
-	 * it may run without preemption for a time that is
-	 * ill-suited for a waiting RT task. Therefore, try to
-	 * wake this RT task on another runqueue.
-	 *
-	 * Also, if the current task on @p's runqueue is an RT task, then
-	 * try to see if we can wake this RT task up on another
-	 * runqueue. Otherwise simply start this RT task
-	 * on its current runqueue.
-	 *
-	 * We want to avoid overloading runqueues. If the woken
-	 * task is a higher priority, then it will stay on this CPU
-	 * and the lower prio task should be moved to another CPU.
-	 * Even though this will probably make the lower prio task
-	 * lose its cache, we do not want to bounce a higher task
-	 * around just because it gave up its CPU, perhaps for a
-	 * lock?
-	 *
-	 * For equal prio tasks, we just let the scheduler sort it out.
-	 *
-	 * Otherwise, just let it ride on the affined RQ and the
-	 * post-schedule router will push the preempted task away
-	 *
-	 * This test is optimistic, if we get it wrong the load-balancer
-	 * will have to sort it out.
-	 *
-	 * We take into account the capacity of the CPU to ensure it fits the
-	 * requirement of the task - which is only important on heterogeneous
-	 * systems like big.LITTLE.
-	 */
-	test = static_branch_unlikely(&sched_energy_present) ||
-	       (curr && unlikely(rt_task(curr)) &&
-	       (curr->nr_cpus_allowed < 2 || curr->prio <= p->prio));
-
-	/*
-	 * Respect the sync flag as long as the task can run on this CPU.
-	 */
-	if (should_honor_rt_sync(this_cpu_rq, p, sync) &&
-	    cpumask_test_cpu(this_cpu, &p->cpus_allowed)) {
-		cpu = this_cpu;
-		goto out_unlock;
-	}
-
-	if (test || !rt_task_fits_cpu(p, cpu)) {
-		int target = find_lowest_rq(p);
-
-		/*
-		 * Bail out if we were forcing a migration to find a better
-		 * fitting CPU but our search failed.
-		 */
-		if (!test && target != -1 && !rt_task_fits_capacity(p, target))
-			goto out_unlock;
-
-		/*
-		 * Check once for losing a race with the other core's irq
-		 * handler. This does not happen frequently, but it can avoid
-		 * delaying the execution of the RT task in those cases.
-		 */
-		if (target != -1) {
-			tgt_task = READ_ONCE(cpu_rq(target)->curr);
-			if (task_may_not_preempt(tgt_task, target))
-				target = find_lowest_rq(p);
-		}
-
-		/*
-		 * If cpu is non-preemptible, prefer remote cpu
-		 * even if it's running a higher-prio task.
-		 * Otherwise: Don't bother moving it if the
-		 * destination CPU is not running a lower priority task.
-		 */
-		if (target != -1 &&
-		    (p->prio < cpu_rq(target)->rt.highest_prio.curr))
-			cpu = target;
-	}
-
-out_unlock:
-	rcu_read_unlock();
-
-out:
-	return cpu;
-}
 static void check_preempt_equal_prio(struct rq *rq, struct task_struct *p)
 {
 	/*
@@ -2669,7 +2560,7 @@ const struct sched_class rt_sched_class = {
 #ifdef CONFIG_SMP
 	.balance		= balance_rt,
 	.pick_task		= pick_task_rt,
-	.select_task_rq		= select_task_rq_rt,
+	.select_task_rq		= cass_select_task_rq_rt,
 	.set_cpus_allowed       = set_cpus_allowed_common,
 	.rq_online              = rq_online_rt,
 	.rq_offline             = rq_offline_rt,

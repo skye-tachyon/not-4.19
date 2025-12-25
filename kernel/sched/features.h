@@ -27,7 +27,7 @@
  * Consider buddies to be cache hot, decreases the likeliness of a
  * cache buddy being migrated away, increases cache locality.
  */
-#define SCHED_FEAT_CACHE_HOT_BUDDY 1
+#define SCHED_FEAT_CACHE_HOT_BUDDY 0
 
 /*
  * Allow wakeup-time preemption of the current task:
@@ -51,7 +51,8 @@
 /*
  * When doing wakeups, attempt to limit superfluous scans of the LLC domain.
  */
-#define SCHED_FEAT_SIS_PROP 1
+#define SCHED_FEAT_SIS_PROP 0
+#define SCHED_FEAT_SIS_UTIL 1
 
 /*
  * Issue a WARN when we do multiple update_rq_clock() calls
@@ -90,18 +91,13 @@
 #define SCHED_FEAT_UTIL_EST_FASTUP 1
 
 /*
- * Fast pre-selection of CPU candidates for EAS.
- */
-#define SCHED_FEAT_FIND_BEST_TARGET 0
-
-/*
  * Energy aware scheduling algorithm choices:
  * EAS_PREFER_IDLE
  *   Direct tasks in a schedtune.prefer_idle=1 group through
  *   the EAS path for wakeup task placement. Otherwise, put
  *   those tasks through the mainline slow path.
  */
-#define SCHED_FEAT_EAS_PREFER_IDLE 0
+#define SCHED_FEAT_EAS_PREFER_IDLE 1
 
 /*
  * Request max frequency from schedutil whenever a RT task is running.
